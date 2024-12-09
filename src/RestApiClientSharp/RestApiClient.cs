@@ -295,8 +295,8 @@ namespace AndreasReitberger.API.REST
             }
             if (RestClient is not null)
             {
+                Uri? fullUri = RestClient?.BuildUri(request);
                 RestResponse? response = await RestClient.ExecuteAsync(request, cts.Token).ConfigureAwait(false);
-
                 if ((response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Created) &&
                     response.ResponseStatus == ResponseStatus.Completed)
                 {
@@ -321,7 +321,6 @@ namespace AndreasReitberger.API.REST
                     {
                         errorMessage += $" Response content: {response.Content}";
                     }
-
                     throw new HttpRequestException(errorMessage);
                 }
             }
