@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35527.113 d17.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestApiClientSharp", "RestApiClientSharp\RestApiClientSharp.csproj", "{9782E6D7-37C2-401A-B375-F2716A70D65D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Projektmappenelemente", "Projektmappenelemente", "{C8AC05B0-CB7C-4DF3-88EC-B838D06FD752}"
+	ProjectSection(SolutionItems) = preProject
+		..\common.props = ..\common.props
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestApiClientSharp.Test.NUnit", "RestApiClientSharp.Test.NUnit\RestApiClientSharp.Test.NUnit.csproj", "{1CD1A505-70A2-49F1-BFF6-D963D437F995}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9782E6D7-37C2-401A-B375-F2716A70D65D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9782E6D7-37C2-401A-B375-F2716A70D65D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9782E6D7-37C2-401A-B375-F2716A70D65D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9782E6D7-37C2-401A-B375-F2716A70D65D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1CD1A505-70A2-49F1-BFF6-D963D437F995}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1CD1A505-70A2-49F1-BFF6-D963D437F995}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1CD1A505-70A2-49F1-BFF6-D963D437F995}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1CD1A505-70A2-49F1-BFF6-D963D437F995}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {68B3412C-CA1A-4BD8-8604-5F6C4497231F}
+	EndGlobalSection
+EndGlobal
