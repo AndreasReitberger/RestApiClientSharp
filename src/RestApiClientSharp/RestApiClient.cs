@@ -82,16 +82,19 @@ namespace AndreasReitberger.API.REST
         #region Constructor
         public RestApiClient()
         {
+            Id = Guid.NewGuid();
             IsInitialized = false;
         }
         public RestApiClient(IAuthenticationHeader authHeader, string tokenName)
         {
+            Id = Guid.NewGuid();
             AuthHeaders = new Dictionary<string, IAuthenticationHeader>() { { tokenName, authHeader } };
             IsInitialized = true;
             Instance = this;
         }
         public RestApiClient(IAuthenticationHeader authHeader, string tokenName, string url, string version = "v1")
         {
+            Id = Guid.NewGuid();
             AuthHeaders = new Dictionary<string, IAuthenticationHeader>() { { tokenName, authHeader } };
             ApiTargetPath = url;
             ApiVersion = version;
