@@ -1,4 +1,7 @@
-﻿namespace AndreasReitberger.API.REST
+﻿using AndreasReitberger.API.REST.Interfaces;
+using System.Collections.Generic;
+
+namespace AndreasReitberger.API.REST
 {
     public partial class RestApiClient
     {
@@ -17,7 +20,7 @@
 
             public RestApiConnectionBuilder WithWebAddress(string webAddress)
             {
-                _client.AppBaseUrl = webAddress;
+                _client.ApiTargetPath = webAddress;
                 return this;
             }
 
@@ -26,16 +29,16 @@
                 _client.ApiVersion = version;
                 return this;
             }
-            public RestApiConnectionBuilder WithApiKey(string apiKey)
+            public RestApiConnectionBuilder WithApiKey(string tokenName, IAuthenticationHeader authHeader)
             {
-                _client.AccessToken = apiKey;
+                _client.AuthHeaders = new Dictionary<string, IAuthenticationHeader>() { { tokenName, authHeader } };
                 return this;
             }
 
-            public RestApiConnectionBuilder WithWebAddressAndApiKey(string webAddress, string apiKey)
+            public RestApiConnectionBuilder WithWebAddressAndApiKey(string webAddress, string tokenName, IAuthenticationHeader authHeader)
             {
-                _client.AppBaseUrl = webAddress;
-                _client.AccessToken = apiKey;
+                _client.ApiTargetPath = webAddress;
+                _client.AuthHeaders = new Dictionary<string, IAuthenticationHeader>() { { tokenName, authHeader } };
                 return this;
             }
 

@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.RateLimiting;
 using System.Threading.Tasks;
 
-namespace AndreasReitberger.API.Finnhub.Utilities
+namespace AndreasReitberger.API.REST.Utilities
 {
     /// <summary>
     /// Limits the API calls to not violate the rate limits from LexOffice.

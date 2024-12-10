@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace AndreasReitberger.API.Finnhub.Utilities
+﻿namespace AndreasReitberger.API.REST.Utilities
 {
     // Source: https://stackoverflow.com/questions/11037004/are-there-any-constants-for-the-default-http-headers
     public static class HeaderNames
