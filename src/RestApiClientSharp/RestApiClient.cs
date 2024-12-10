@@ -1,11 +1,9 @@
 ﻿using AndreasReitberger.API.REST.Events;
 using AndreasReitberger.API.REST.Interfaces;
-using AndreasReitberger.API.REST.Utilities;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
-using System.Threading.RateLimiting;
 using System.Threading.Tasks;
 
 namespace AndreasReitberger.API.REST
@@ -15,6 +13,7 @@ namespace AndreasReitberger.API.REST
     {
 
         #region Instance
+
         static RestApiClient? _instance = null;
         static readonly object Lock = new();
         public static RestApiClient Instance
@@ -36,6 +35,9 @@ namespace AndreasReitberger.API.REST
                 }
             }
         }
+
+        [ObservableProperty]
+        Guid id = Guid.Empty;
 
         [ObservableProperty]
         bool isActive = false;
@@ -259,6 +261,45 @@ namespace AndreasReitberger.API.REST
         }
         #endregion
 
+        #endregion
+
+        #region Overrides
+        public override string ToString() => JsonConvert.SerializeObject(this, Formatting.Indented);
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is not RestApiClient item)
+                return false;
+            return Id.Equals(item.Id);
+        }
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
+        #endregion
+
+        #region Dispose
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        protected void Dispose(bool disposing)
+        {
+            // Ordinarily, we release unmanaged resources here;
+            // but all are wrapped by safe handles.
+            // Release disposable objects.
+            if (disposing)
+            {
+
+            }
+        }
+        #endregion
+
+        #region Clone
+
+        public object Clone() => MemberwiseClone();
+        
         #endregion
     }
 }

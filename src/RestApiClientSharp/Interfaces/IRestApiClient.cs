@@ -1,22 +1,19 @@
-﻿using System.Collections.Concurrent;
+﻿using AndreasReitberger.API.REST.Events;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Net;
-using System.Reflection.Emit;
-using System.Security;
-using System.Threading.Tasks;
 using System.Threading;
-using AndreasReitberger.API.REST.Events;
+using System.Threading.Tasks;
 
 namespace AndreasReitberger.API.REST.Interfaces
 {
-    public interface IRestApiClient : INotifyPropertyChanged //, IObservable<RestApiClient>
+    public interface IRestApiClient : INotifyPropertyChanged, IDisposable, ICloneable //, IObservable<RestApiClient>
     {
 
         #region Properties
 
         #region Instance
+        public Guid Id { get; set; }
         public bool UpdateInstance { get; set; }
         public static IRestApiClient? Instance { get; set; }
         #endregion
