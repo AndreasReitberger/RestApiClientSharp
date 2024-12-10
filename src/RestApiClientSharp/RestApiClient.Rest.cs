@@ -66,6 +66,7 @@ namespace AndreasReitberger.API.REST
                     apiRsponeResult.IsOnline = true;
                     AuthenticationFailed = false;
                     apiRsponeResult.Result = respone.Content;
+                    apiRsponeResult.RawBytes = respone.RawBytes;
                     apiRsponeResult.Succeeded = true;
                     apiRsponeResult.EventArgs = new RestEventArgs()
                     {
@@ -190,7 +191,9 @@ namespace AndreasReitberger.API.REST
                         Debug.WriteLine($"REST: Result = '{(respone?.IsSuccessful is true ? "successfully" : "failed")} (Code: {respone?.StatusCode})'\n{respone?.Content}");
 #endif
                         if (ValidateResponse(respone, fullUri) is RestApiRequestRespone res)
+                        {
                             apiRsponeResult = res;
+                        }
                     }
                 }
                 catch (TaskCanceledException texp)
@@ -457,7 +460,6 @@ namespace AndreasReitberger.API.REST
             }
             if (RestClient is not null)
             {
-                Uri? fullUri = RestClient?.BuildUri(request);
                 RestResponse? response = await RestClient.ExecuteAsync(request, cts.Token).ConfigureAwait(false);
                 if ((response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Created) &&
                     response.ResponseStatus == ResponseStatus.Completed)
