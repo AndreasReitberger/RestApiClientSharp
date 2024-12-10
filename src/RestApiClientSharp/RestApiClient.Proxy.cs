@@ -119,7 +119,6 @@ namespace AndreasReitberger.API.REST
                 };
 
                 HttpClient = new(handler: httpHandler, disposeHandler: true);
-                //RestClient = new(httpClient: HttpClient, options: options);
             }
             else
             {
@@ -129,7 +128,6 @@ namespace AndreasReitberger.API.REST
 #else
                     new();
 #endif
-                //RestClient = new(baseUrl: $"{AppBaseUrl}{ApiVersion}/");
             }
             RestClient = new(httpClient: HttpClient, options: options);
             UpdatingClients = false;
