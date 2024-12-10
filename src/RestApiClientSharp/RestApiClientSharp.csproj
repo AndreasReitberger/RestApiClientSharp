@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<Import Project="..\..\common.props" />
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.1;net48;net8;net9</TargetFrameworks>
+		<TargetFrameworks>netstandard2.1;net8;net9</TargetFrameworks>
 		<PackageTags>REST, API, Public, Sharp</PackageTags>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<Description>A simple library to make REST-API calls to public API's.</Description>

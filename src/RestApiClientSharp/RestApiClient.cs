@@ -1,19 +1,12 @@
-﻿using AndreasReitberger.API.Finnhub.Utilities;
+﻿using AndreasReitberger.API.REST.Events;
 using AndreasReitberger.API.REST.Interfaces;
-using AndreasReitberger.Core.Utilities;
-using CommunityToolkit.Mvvm.ComponentModel;
+using AndreasReitberger.API.REST.Utilities;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using RestSharp;
-using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Http;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.RateLimiting;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
 
 namespace AndreasReitberger.API.REST
 {
@@ -48,76 +41,16 @@ namespace AndreasReitberger.API.REST
         bool isActive = false;
 
         [ObservableProperty]
+        bool updateInstance = false;
+
+        [ObservableProperty]
         bool isInitialized = false;
 
         #endregion
 
         #region Properties
 
-        #region Clients
-
-        [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
-        RestClient? restClient;
-        //partial void OnRestClientChanged(RestClient? value) => UpdateRestClientInstance();
-
-        [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
-        HttpClient? httpClient;
-        //partial void OnHttpClientChanged(HttpClient? value) => UpdateRestClientInstance();
-
-#if !NETFRAMEWORK
-        [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
-        RateLimitedHandler? rateLimitedHandler;
-
-        public static RateLimiter DefaultLimiter = new TokenBucketRateLimiter(new()
-        {
-            TokenLimit = 2,
-            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-            QueueLimit = int.MaxValue,
-            ReplenishmentPeriod = TimeSpan.FromSeconds(1),
-            TokensPerPeriod = 1,
-            AutoReplenishment = true,
-        });
-
-        [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
-        RateLimiter? limiter;
-        partial void OnLimiterChanged(RateLimiter? value) => UpdateRestClientInstance();
-#endif
-        [ObservableProperty]
-        bool updatingClients = false;
-
-        [ObservableProperty]
-        string appBaseUrl = "";
-        partial void OnAppBaseUrlChanged(string value) => UpdateRestClientInstance();
-
-        [ObservableProperty]
-        string apiVersion = "v1";
-        partial void OnApiVersionChanged(string value) => UpdateRestClientInstance();
-        #endregion
-
-        #region SerializerSettings
-
-        [ObservableProperty]
-        JsonSerializerSettings jsonSerializerSettings = new()
-        {
-            Formatting = Formatting.Indented,
-            ContractResolver = new DefaultContractResolver
-            {
-                NamingStrategy = new CamelCaseNamingStrategy(),
-            },
-            DateFormatString = "yyyy-MM-ddTHH:mm:ss.fffK"
-        };
-
-        #endregion
-
         #region General
-
-        [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
-        string? accessToken = null;
 
         [ObservableProperty]
         [property: JsonIgnore, XmlIgnore]
@@ -138,53 +71,10 @@ namespace AndreasReitberger.API.REST
         [ObservableProperty]
         int minimumCooldown = 0;
 
+        [ObservableProperty]
+        int retriesWhenOffline = 2;
         #endregion
 
-        #region Proxy
-
-        [ObservableProperty]
-        bool enableProxy = false;
-        partial void OnEnableProxyChanged(bool value) => UpdateRestClientInstance();
-
-        [ObservableProperty]
-        bool proxyUseDefaultCredentials = true;
-        partial void OnProxyUseDefaultCredentialsChanged(bool value) => UpdateRestClientInstance();
-
-        [ObservableProperty]
-        bool secureProxyConnection = true;
-        partial void OnSecureProxyConnectionChanged(bool value) => UpdateRestClientInstance();
-
-        [ObservableProperty]
-        string proxyAddress = string.Empty;
-        partial void OnProxyAddressChanged(string value) => UpdateRestClientInstance();
-
-        [ObservableProperty]
-        int proxyPort = 443;
-        partial void OnProxyPortChanged(int value) => UpdateRestClientInstance();
-
-        [ObservableProperty]
-        string proxyUser = string.Empty;
-        partial void OnProxyUserChanged(string value) => UpdateRestClientInstance();
-
-        [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
-        string? proxyPassword;
-        partial void OnProxyPasswordChanged(string? value) => UpdateRestClientInstance();
-
-        #endregion
-
-        #endregion
-
-        #region EventHandlers
-        public event EventHandler? Error;
-        protected virtual void OnError()
-        {
-            Error?.Invoke(this, EventArgs.Empty);
-        }
-        protected virtual void OnError(UnhandledExceptionEventArgs e)
-        {
-            Error?.Invoke(this, e);
-        }
         #endregion
 
         #region Constructor
@@ -192,199 +82,70 @@ namespace AndreasReitberger.API.REST
         {
             IsInitialized = false;
         }
-        public RestApiClient(string accessToken)
+        public RestApiClient(IAuthenticationHeader authHeader, string tokenName)
         {
-            AccessToken = accessToken;
+            AuthHeaders = new Dictionary<string, IAuthenticationHeader>() { { tokenName, authHeader } };
             IsInitialized = true;
             Instance = this;
         }
-        public RestApiClient(string accessToken, string url, string version = "v1")
+        public RestApiClient(IAuthenticationHeader authHeader, string tokenName, string url, string version = "v1")
         {
-            AccessToken = accessToken;
-            AppBaseUrl = url;
+            AuthHeaders = new Dictionary<string, IAuthenticationHeader>() { { tokenName, authHeader } };
+            ApiTargetPath = url;
             ApiVersion = version;
             IsInitialized = true;
             Instance = this;
         }
         #endregion
 
-        #region Methods
-        void UpdateRestClientInstance()
-        {
-            if (string.IsNullOrEmpty(AppBaseUrl) || string.IsNullOrEmpty(ApiVersion) || UpdatingClients)
-            {
-                return;
-            }
-            UpdatingClients = true;
-#if !NETFRAMEWORK
-            Limiter ??= DefaultLimiter;
-#endif
-            RestClientOptions options = new($"{AppBaseUrl}{ApiVersion}/")
-            {
-                ThrowOnAnyError = true,
-                Timeout = TimeSpan.FromSeconds(DefaultTimeout / 1000),
-            };
-            if (EnableProxy && !string.IsNullOrEmpty(ProxyAddress))
-            {
-                HttpClientHandler httpHandler = new()
-                {
-                    UseProxy = true,
-                    Proxy = GetCurrentProxy(),
-                    AllowAutoRedirect = true,
-                };
-
-                HttpClient = new(handler: httpHandler, disposeHandler: true);
-                //RestClient = new(httpClient: HttpClient, options: options);
-            }
-            else
-            {
-                HttpClient =
-#if !NETFRAMEWORK
-                    new(new RateLimitedHandler(Limiter));
-#else
-                    new();
-#endif
-                //RestClient = new(baseUrl: $"{AppBaseUrl}{ApiVersion}/");
-            }
-            RestClient = new(httpClient: HttpClient, options: options);
-            UpdatingClients = false;
-        }
-
-        public async Task<T?> CallApiAsync<T>(
-            string command, 
-            Method method = Method.Get, 
-            string body = "", 
-            Dictionary<string, string>? headers = null,
-            Dictionary<string, string>? urlSegments = null,
-            CancellationTokenSource? cts = default) where T : class
-        {
-            if (cts == default)
-            {
-                cts = new(DefaultTimeout);
-            }
-            if (RestClient is null)
-            {
-                UpdateRestClientInstance();
-            }
-
-            RestRequest request = new(command, method)
-            {
-                RequestFormat = DataFormat.Json
-            };
-            if (headers is not null)
-            {
-                foreach (KeyValuePair<string, string> item in headers)
-                {
-                    request.AddHeader(item.Key, item.Value);
-                }
-            }
-            if (urlSegments != null)
-            {
-                foreach (KeyValuePair<string, string> pair in urlSegments)
-                {
-                    request.AddParameter(pair.Key, pair.Value, ParameterType.QueryString);
-                }
-            }
-            /*
-            else if (!string.IsNullOrEmpty(AccessToken))
-                request.AddHeader("Authorization", $"Bearer {AccessToken}");
-            */
-            if (!string.IsNullOrEmpty(body))
-            {
-                request.AddJsonBody(body);
-            }
-            if (RestClient is not null)
-            {
-                Uri? fullUri = RestClient?.BuildUri(request);
-                RestResponse? response = await RestClient.ExecuteAsync(request, cts.Token).ConfigureAwait(false);
-                if ((response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Created) &&
-                    response.ResponseStatus == ResponseStatus.Completed)
-                {
-                    if (typeof(T) == typeof(byte[]))
-                    {
-                        return response.RawBytes as T;
-                    }
-                    else if (typeof(T) == typeof(string))
-                    {
-                        return response.Content as T;
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException($"Unsupported return type: {typeof(T).Name}");
-                    }
-                }
-                else
-                {
-                    string errorMessage = $"Request failed with status code {(int)response.StatusCode} ({response.StatusCode}).";
-
-                    if (!string.IsNullOrEmpty(response.Content))
-                    {
-                        errorMessage += $" Response content: {response.Content}";
-                    }
-                    throw new HttpRequestException(errorMessage);
-                }
-            }
-            return default;
-        }
-
-        #endregion
-
         #region Public Methods
 
-        #region Proxy
-        Uri GetProxyUri() =>
-            ProxyAddress.StartsWith("http://") || ProxyAddress.StartsWith("https://") ? new Uri($"{ProxyAddress}:{ProxyPort}") : new Uri($"{(SecureProxyConnection ? "https" : "http")}://{ProxyAddress}:{ProxyPort}");
-
-        WebProxy GetCurrentProxy()
-        {
-            WebProxy proxy = new()
-            {
-                Address = GetProxyUri(),
-                BypassProxyOnLocal = false,
-                UseDefaultCredentials = ProxyUseDefaultCredentials,
-            };
-            if (ProxyUseDefaultCredentials && !string.IsNullOrEmpty(ProxyUser))
-            {
-                proxy.Credentials = new NetworkCredential(ProxyUser, ProxyPassword);
-            }
-            else
-            {
-                proxy.UseDefaultCredentials = ProxyUseDefaultCredentials;
-            }
-            return proxy;
-        }
-        #endregion
-
         #region SetAccessToken
-        public void SetAccessToken(string token)
+        public void SetAccessToken(string tokenName, IAuthenticationHeader authenticationHeader)
         {
-            AccessToken = token;
+            if (!AuthHeaders.TryAdd(tokenName, authenticationHeader))
+            {
+                AuthHeaders[tokenName] = authenticationHeader;
+            }
             IsInitialized = true;
         }
         #endregion
 
         #region OnlineCheck
-        public async Task CheckOnlineAsync(int timeout = 10000)
+        public virtual async Task CheckOnlineAsync(int timeout = 10000)
+        {
+            CancellationTokenSource cts = new(timeout);
+            await CheckOnlineAsync($"{ApiTargetPath}/{ApiVersion}", AuthHeaders, "", cts).ConfigureAwait(false);
+            cts?.Dispose();
+        }
+
+        public virtual async Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10000)
+        {
+            CancellationTokenSource cts = new(timeout);
+            await CheckOnlineAsync(commandBase, authHeaders, command, cts).ConfigureAwait(false);
+            cts?.Dispose();
+        }
+
+        public virtual async Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, CancellationTokenSource? cts = default)
         {
             if (IsConnecting) return; // Avoid multiple calls
             IsConnecting = true;
             bool isReachable = false;
             try
             {
-                // Cancel after timeout
-                CancellationTokenSource cts = new(new TimeSpan(0, 0, 0, 0, timeout));
-                string uriString = $"{AppBaseUrl}";
+                string uriString = $"{ApiTargetPath}/{ApiVersion}";
                 try
                 {
-                    if (HttpClient is not null)
-                    {
-                        HttpResponseMessage? response = await HttpClient.GetAsync(uriString, cts.Token).ConfigureAwait(false);
-                        response.EnsureSuccessStatusCode();
-                        if (response != null)
-                        {
-                            isReachable = response.IsSuccessStatusCode;
-                        }
-                    }
+                    // Send a blank api request in order to check if the server is reachable
+                    IRestApiRequestRespone? respone = await SendRestApiRequestAsync(
+                       requestTargetUri: commandBase,
+                       method: Method.Get,
+                       command: command,
+                       jsonObject: null,
+                       authHeaders: authHeaders,
+                       cts: cts)
+                    .ConfigureAwait(false);
+                    isReachable = respone?.IsOnline == true;
                 }
                 catch (InvalidOperationException iexc)
                 {
@@ -396,7 +157,7 @@ namespace AndreasReitberger.API.REST
                 }
                 catch (TaskCanceledException)
                 {
-                    // Throws exception on timeout, not actually an error
+                    // Throws an exception on timeout, not actually an error
                 }
             }
             catch (Exception exc)
@@ -404,8 +165,97 @@ namespace AndreasReitberger.API.REST
                 OnError(new UnhandledExceptionEventArgs(exc, false));
             }
             IsConnecting = false;
-            IsOnline = isReachable;
-            //return isReachable;
+            // Avoid offline message for short connection loss
+            if (!IsOnline || isReachable || _retries > RetriesWhenOffline)
+            {
+                // Do not check if the previous state was already offline
+                _retries = 0;
+                IsOnline = isReachable;
+            }
+            else
+            {
+                // Retry with shorter timeout to see if the connection loss is real
+                _retries++;
+                cts = new(3500);
+                await CheckOnlineAsync(commandBase, authHeaders, command, cts).ConfigureAwait(false);
+            }
+        }
+
+        public virtual async Task<bool> CheckIfApiIsValidAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10000)
+        {
+            try
+            {
+                if (IsOnline)
+                {
+                    RestApiRequestRespone? respone = await SendRestApiRequestAsync(
+                        requestTargetUri: commandBase,
+                        method: Method.Get,
+                        command: command,
+                        authHeaders: authHeaders,
+                        cts: new(timeout))
+                        .ConfigureAwait(false) as RestApiRequestRespone;
+                    if (respone?.HasAuthenticationError is true)
+                    {
+                        AuthenticationFailed = true;
+                        if (respone.EventArgs is RestEventArgs rArgs)
+                            OnRestApiAuthenticationError(rArgs);
+                    }
+                    else
+                    {
+                        AuthenticationFailed = false;
+                        if (respone?.EventArgs is RestEventArgs rArgs)
+                            OnRestApiAuthenticationSucceeded(rArgs);
+                    }
+                    return AuthenticationFailed;
+                }
+                else
+                    return false;
+            }
+            catch (Exception exc)
+            {
+                OnError(new UnhandledExceptionEventArgs(exc, false));
+                return false;
+            }
+        }
+
+        #endregion
+
+        #region Misc
+        public virtual void AddOrUpdateAuthHeader(string key, string value, int order = 0)
+        {
+            if (AuthHeaders?.ContainsKey(key) is true)
+            {
+                AuthHeaders[key] = new AuthenticationHeader() { Token = value, Order = order };
+            }
+            else
+            {
+                AuthHeaders?.Add(key, new AuthenticationHeader() { Token = value, Order = order });
+            }
+        }
+
+        public virtual IAuthenticationHeader? GetAuthHeader(string key)
+        {
+            if (AuthHeaders?.ContainsKey(key) is true)
+            {
+                return AuthHeaders?[key];
+            }
+            return null;
+        }
+
+        public virtual void CancelCurrentRequests()
+        {
+            try
+            {
+                if (HttpClient is not null)
+                {
+                    HttpClient.CancelPendingRequests();
+                    UpdateRestClientInstance();
+                }
+            }
+            catch (Exception exc)
+            {
+                OnError(new UnhandledExceptionEventArgs(exc, false));
+            }
         }
         #endregion
 
