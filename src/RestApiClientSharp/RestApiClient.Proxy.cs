@@ -2,7 +2,6 @@
 using AndreasReitberger.API.REST.Utilities;
 using System.Net;
 using System.Net.Http;
-using Newtonsoft.Json;
 
 namespace AndreasReitberger.API.REST
 {
