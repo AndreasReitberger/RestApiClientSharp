@@ -1,10 +1,11 @@
 using AndreasReitberger.API.REST;
+using AndreasReitberger.API.REST.Enums;
 
 namespace RestApiClientSharp.Test.NUnit
 {
     public class Tests
     {
-        private readonly string tokenString = SecretAppSettingReader.ReadSection<SecretAppSetting>("TestSetup").ApiKey ?? "";
+        private readonly string tokenString = SecretAppSettingReader.ReadSection<SecretAppSetting>("TestSetup")?.ApiKey ?? "";
         private RestApiClient? client;
 
         #region Setup
@@ -14,8 +15,16 @@ namespace RestApiClientSharp.Test.NUnit
             client = new RestApiClient.RestApiConnectionBuilder()
                 .WithWebAddress("")
                 .WithVersion("v1")
-                .WithApiKey(tokenString)
+                .WithApiKey("token", new AuthenticationHeader() { Token = tokenString, Target = AuthenticationHeaderTarget.Header})
                 .Build();
+        }
+        #endregion
+
+        #region Cleanup
+        [TearDown]
+        public void BaseTearDown()
+        {
+            client?.Dispose();
         }
         #endregion
 

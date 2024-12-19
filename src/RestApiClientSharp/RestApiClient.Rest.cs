@@ -31,18 +31,7 @@ namespace AndreasReitberger.API.REST
             {
                 if ((string.IsNullOrEmpty(result) || result == "{}") && emptyResultIsValid)
                     return true;
-                IQueryActionResult? actionResult = GetObjectFromJson<QueryActionResult>(result);
-                return actionResult?.Ok ?? false;
-            }
-            catch (JsonException jecx)
-            {
-                OnError(new JsonConvertEventArgs()
-                {
-                    Exception = jecx,
-                    OriginalString = result,
-                    Message = jecx.Message,
-                });
-                return false;
+                return GetObjectFromJson<QueryActionResult>(result)?.Ok ?? false;
             }
             catch (Exception exc)
             {
