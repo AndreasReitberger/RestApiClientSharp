@@ -167,8 +167,8 @@ namespace AndreasReitberger.API.REST
                         }
                     }
                 }
-#if DEBUG
                 Uri? fullUri = RestClient?.BuildUri(request);
+#if DEBUG
                 Debug.WriteLine($"REST-Request: Uri = '{fullUri}'");
 #endif
                 try
@@ -291,8 +291,8 @@ namespace AndreasReitberger.API.REST
                         request.AddParameter(para.Key, para.Value, ParameterType.GetOrPost);
                     }
                 }
-#if DEBUG
                 Uri? fullUrl = RestClient?.BuildUri(request);
+#if DEBUG
                 Debug.WriteLine($"REST-Request: Uri = '{fullUrl}'");
 #endif
                 try
