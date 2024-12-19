@@ -47,19 +47,6 @@ namespace AndreasReitberger.API.REST
         {
             try
             {
-                // Workaround
-                // The HttpClient on net7-android seems to missing the char for the json respone
-                // Seems to be only on a specific simulator, further investigation
-#if DEBUG
-                if ((json?.StartsWith("{") ?? false) && (!json?.EndsWith("}") ?? false))
-                {
-                    //json += $"}}"; 
-                }
-                else if ((json?.StartsWith("[") ?? false) && (!json?.EndsWith("]") ?? false))
-                {
-                    //json += $"]";
-                }
-#endif
                 json ??= string.Empty;
                 return JsonSerializer.Deserialize<T?>(json, serializerSettings ?? DefaultJsonSerializerSettings);
             }
