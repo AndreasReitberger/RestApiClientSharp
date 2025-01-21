@@ -1,16 +1,11 @@
-﻿using AndreasReitberger.API.REST.Events;
-using AndreasReitberger.API.REST.Interfaces;
+﻿using AndreasReitberger.API.REST.Interfaces;
 using AndreasReitberger.API.REST.Utilities;
 using Newtonsoft.Json;
-using System.Collections.Generic;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.RateLimiting;
-using System.Threading.Tasks;
 
 namespace AndreasReitberger.API.REST
 {
-    // Documentation: https://finnhub.io/docs/api
     public partial class RestApiClient : ObservableObject, IRestApiClient
     {
 

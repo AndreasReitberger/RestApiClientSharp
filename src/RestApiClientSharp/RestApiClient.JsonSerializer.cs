@@ -6,7 +6,6 @@ using System.Text.Json.Serialization;
 
 namespace AndreasReitberger.API.REST
 {
-    // Documentation: https://finnhub.io/docs/api
     public partial class RestApiClient : ObservableObject, IRestApiClient
     {
 #if DEBUG

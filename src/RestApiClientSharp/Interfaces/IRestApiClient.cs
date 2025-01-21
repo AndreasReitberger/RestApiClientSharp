@@ -1,4 +1,5 @@
-﻿using AndreasReitberger.API.REST.Events;
+﻿using AndreasReitberger.API.REST.Enums;
+using AndreasReitberger.API.REST.Events;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Net;
@@ -92,7 +93,7 @@ namespace AndreasReitberger.API.REST.Interfaces
 
         public void CancelCurrentRequests();
         public IAuthenticationHeader? GetAuthHeader(string key);
-        public void AddOrUpdateAuthHeader(string key, string value, int order = 0);
+        public void AddOrUpdateAuthHeader(string key, string value, AuthenticationHeaderTarget target, int order = 0);
         #endregion
 
         #endregion
