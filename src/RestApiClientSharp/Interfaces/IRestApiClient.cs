@@ -50,7 +50,6 @@ namespace AndreasReitberger.API.REST.Interfaces
 
         #endregion
 
-
         #region EventHandlers
 
         public event EventHandler? Error;

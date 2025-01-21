@@ -13,8 +13,8 @@ namespace AndreasReitberger.API.REST
         #region Properties
 
         [ObservableProperty]
-        [property: XmlIgnore]
-        Dictionary<string, IAuthenticationHeader> authHeaders = [];
+        [XmlIgnore]
+        public partial Dictionary<string, IAuthenticationHeader> AuthHeaders { get; set; } = [];
 
         #endregion
 

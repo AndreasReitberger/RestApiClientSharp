@@ -9,11 +9,11 @@ namespace AndreasReitberger.API.REST
     // Documentation: https://finnhub.io/docs/api
     public partial class RestApiClient : ObservableObject, IRestApiClient
     {
+        [ObservableProperty]
+        //[JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial JsonSerializerSettings NewtonsoftJsonSerializerSettings { get; set; } = DefaultNewtonsoftJsonSerializerSettings;
 #if DEBUG
         #region Debug
-        [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        JsonSerializerSettings newtonsoftJsonSerializerSettings = DefaultNewtonsoftJsonSerializerSettings;
 
         public static JsonSerializerSettings DefaultNewtonsoftJsonSerializerSettings = new()
         {
@@ -37,9 +37,6 @@ namespace AndreasReitberger.API.REST
         #endregion
 #else
         #region Release
-        [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        JsonSerializerSettings newtonsoftJsonSerializerSettings = DefaultNewtonsoftJsonSerializerSettings;
 
         public static JsonSerializerSettings DefaultNewtonsoftJsonSerializerSettings = new()
         {

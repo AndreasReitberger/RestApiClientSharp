@@ -8,11 +8,12 @@ namespace AndreasReitberger.API.REST
 {
     public partial class RestApiClient : ObservableObject, IRestApiClient
     {
+
+        [ObservableProperty]
+        [Newtonsoft.Json.JsonIgnore, JsonIgnore, XmlIgnore]
+        public partial JsonSerializerOptions JsonSerializerSettings { get; set; } = DefaultJsonSerializerSettings;
 #if DEBUG
         #region Debug
-        [ObservableProperty]
-        [property: Newtonsoft.Json.JsonIgnore, JsonIgnore, XmlIgnore]
-        JsonSerializerOptions jsonSerializerSettings = DefaultJsonSerializerSettings;
 
         public static JsonSerializerOptions DefaultJsonSerializerSettings = new()
         {

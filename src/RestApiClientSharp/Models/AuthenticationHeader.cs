@@ -8,16 +8,16 @@ namespace AndreasReitberger.API.REST
     {
         #region Properties
         [ObservableProperty]
-        string? token;
+        public partial string? Token { get; set; }
 
         [ObservableProperty]
-        int order;
+        public partial int Order { get; set; }
 
         [ObservableProperty]
-        string? format;
+        public partial string? Format { get; set; }
 
         [ObservableProperty]
-        AuthenticationHeaderTarget target = AuthenticationHeaderTarget.Header;
+        public partial AuthenticationHeaderTarget Target { get; set; } = AuthenticationHeaderTarget.Header;
         #endregion
 
         #region Overrides
