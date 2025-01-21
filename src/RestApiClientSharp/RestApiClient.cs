@@ -1,4 +1,5 @@
-﻿using AndreasReitberger.API.REST.Events;
+﻿using AndreasReitberger.API.REST.Enums;
+using AndreasReitberger.API.REST.Events;
 using AndreasReitberger.API.REST.Interfaces;
 using Newtonsoft.Json;
 using System.Collections.Generic;
@@ -8,7 +9,6 @@ using System.Threading.Tasks;
 
 namespace AndreasReitberger.API.REST
 {
-    // Documentation: https://finnhub.io/docs/api
     public partial class RestApiClient : ObservableObject, IRestApiClient
     {
 
@@ -226,15 +226,15 @@ namespace AndreasReitberger.API.REST
         #endregion
 
         #region Misc
-        public virtual void AddOrUpdateAuthHeader(string key, string value, int order = 0)
+        public virtual void AddOrUpdateAuthHeader(string key, string value, AuthenticationHeaderTarget target, int order = 0)
         {
             if (AuthHeaders?.ContainsKey(key) is true)
             {
-                AuthHeaders[key] = new AuthenticationHeader() { Token = value, Order = order };
+                AuthHeaders[key] = new AuthenticationHeader() { Token = value, Order = order, Target = target };
             }
             else
             {
-                AuthHeaders?.Add(key, new AuthenticationHeader() { Token = value, Order = order });
+                AuthHeaders?.Add(key, new AuthenticationHeader() { Token = value, Order = order, Target = target });
             }
         }
 

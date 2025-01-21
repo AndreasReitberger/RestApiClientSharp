@@ -1,6 +1,5 @@
 ﻿using AndreasReitberger.API.REST.Interfaces;
 using Newtonsoft.Json;
-using System;
 
 namespace AndreasReitberger.API.REST.Events
 {

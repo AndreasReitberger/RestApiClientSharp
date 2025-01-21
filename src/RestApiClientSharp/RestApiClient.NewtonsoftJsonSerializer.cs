@@ -1,7 +1,6 @@
 ﻿using AndreasReitberger.API.REST.Events;
 using AndreasReitberger.API.REST.Interfaces;
 using AndreasReitberger.API.REST.JSON.Newtonsoft;
-using AndreasReitberger.API.REST;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
