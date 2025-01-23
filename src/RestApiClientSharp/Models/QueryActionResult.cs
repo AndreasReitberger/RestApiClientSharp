@@ -6,9 +6,9 @@ namespace AndreasReitberger.API.REST
     public partial class QueryActionResult : ObservableObject, IQueryActionResult
     {
         #region Properties
-        [ObservableProperty, JsonIgnore]
-        [property: JsonProperty("ok")]
-        bool ok;
+        [ObservableProperty]
+        [JsonProperty("ok")]
+        public partial bool Ok { get; set; }
         #endregion
 
         #region Overrides

@@ -37,16 +37,16 @@ namespace AndreasReitberger.API.REST
         }
 
         [ObservableProperty]
-        Guid id = Guid.Empty;
+        public partial Guid Id { get; set; } = Guid.Empty;
 
         [ObservableProperty]
-        bool isActive = false;
+        public partial bool IsActive { get; set; } = false;
 
         [ObservableProperty]
-        bool updateInstance = false;
+        public partial bool UpdateInstance { get; set; } = false;
 
         [ObservableProperty]
-        bool isInitialized = false;
+        public partial bool IsInitialized { get; set; } = false;
 
         #endregion
 
@@ -55,26 +55,25 @@ namespace AndreasReitberger.API.REST
         #region General
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
-        bool isConnecting = false;
         [JsonIgnore, XmlIgnore]
+        public partial bool IsConnecting { get; set; } = false;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
-        bool isOnline = false;
+        [JsonIgnore, XmlIgnore]
+        public partial bool IsOnline { get; set; } = false;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
-        bool isAccessTokenValid = false;
+        [JsonIgnore, XmlIgnore]
+        public partial bool IsAccessTokenValid { get; set; } = false;
 
         [ObservableProperty]
-        int defaultTimeout = 10000;
+        public partial int DefaultTimeout { get; set; } = 10000;
 
         [ObservableProperty]
-        int minimumCooldown = 0;
+        public partial int MinimumCooldown { get; set; } = 0;
 
         [ObservableProperty]
-        int retriesWhenOffline = 2;
+        public partial int RetriesWhenOffline { get; set; } = 2;
         #endregion
 
         #endregion

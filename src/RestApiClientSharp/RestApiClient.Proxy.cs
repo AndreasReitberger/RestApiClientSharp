@@ -12,36 +12,36 @@ namespace AndreasReitberger.API.REST
         #region Properties
 
         [ObservableProperty]
-        bool enableProxy = false;
+        public partial bool EnableProxy { get; set; } = false;
         partial void OnEnableProxyChanged(bool value) => UpdateRestClientInstance();
 
         [ObservableProperty]
-        bool proxyUserUsesDefaultCredentials = true;
+        public partial bool ProxyUserUsesDefaultCredentials { get; set; } = true;
         partial void OnProxyUserUsesDefaultCredentialsChanged(bool value) => UpdateRestClientInstance();
-        
+
         [ObservableProperty]
-        bool proxyUseDefaultCredentials = true;
+        public partial bool ProxyUseDefaultCredentials { get; set; } = true;
         partial void OnProxyUseDefaultCredentialsChanged(bool value) => UpdateRestClientInstance();
 
         [ObservableProperty]
-        bool secureProxyConnection = true;
+        public partial bool SecureProxyConnection { get; set; } = true;
         partial void OnSecureProxyConnectionChanged(bool value) => UpdateRestClientInstance();
 
         [ObservableProperty]
-        string proxyAddress = string.Empty;
+        public partial string ProxyAddress { get; set; } = string.Empty;
         partial void OnProxyAddressChanged(string value) => UpdateRestClientInstance();
 
         [ObservableProperty]
-        int proxyPort = 443;
+        public partial int ProxyPort { get; set; } = 443;
         partial void OnProxyPortChanged(int value) => UpdateRestClientInstance();
 
         [ObservableProperty]
-        string proxyUser = string.Empty;
+        public partial string ProxyUser { get; set; } = string.Empty;
         partial void OnProxyUserChanged(string value) => UpdateRestClientInstance();
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
-        string? proxyPassword;
+        [JsonIgnore, XmlIgnore]
+        public partial string? ProxyPassword { get; set; }
         partial void OnProxyPasswordChanged(string? value) => UpdateRestClientInstance();
 
         #endregion

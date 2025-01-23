@@ -18,18 +18,17 @@ namespace AndreasReitberger.API.REST
         #region Clients
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
-        RestClient? restClient;
+        [JsonIgnore, XmlIgnore]
+        public partial RestClient? RestClient { get; set; }
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
-        HttpClient? httpClient;
+        [JsonIgnore, XmlIgnore]
+        public partial HttpClient? HttpClient { get; set; }
 
 #if !NETFRAMEWORK
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
-        RateLimitedHandler? rateLimitedHandler;
-
+        [JsonIgnore, XmlIgnore]
+        public partial RateLimitedHandler? RateLimitedHandler { get; set; }
         public static RateLimiter DefaultLimiter = new TokenBucketRateLimiter(new()
         {
             TokenLimit = 5,
@@ -41,22 +40,25 @@ namespace AndreasReitberger.API.REST
         });
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
-        RateLimiter? limiter;
+        [JsonIgnore, XmlIgnore]
+        public partial RateLimiter? Limiter { get; set; }
+
         partial void OnLimiterChanged(RateLimiter? value) => UpdateRestClientInstance();
 #endif
         [ObservableProperty]
-        bool authenticationFailed = false;
+        public partial bool AuthenticationFailed { get; set; } = false;
 
         [ObservableProperty]
-        bool updatingClients = false;
+        public partial bool UpdatingClients { get; set; } = false;
 
         [ObservableProperty]
-        string apiTargetPath = string.Empty;
+        public partial string ApiTargetPath { get; set; } = string.Empty;
+
         partial void OnApiTargetPathChanged(string value) => UpdateRestClientInstance();
 
         [ObservableProperty]
-        string apiVersion = "v1";
+        public partial string ApiVersion { get; set; } = "v1";
+
         partial void OnApiVersionChanged(string value) => UpdateRestClientInstance();
         #endregion
 
