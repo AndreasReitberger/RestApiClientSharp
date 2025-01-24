@@ -8,7 +8,7 @@ namespace AndreasReitberger.API.REST
     {
         #region Properties
         [ObservableProperty]
-        public partial string? Token { get; set; }
+        public partial string Token { get; set; } = string.Empty;
 
         [ObservableProperty]
         public partial int Order { get; set; }
