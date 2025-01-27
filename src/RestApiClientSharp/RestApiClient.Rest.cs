@@ -348,6 +348,7 @@ namespace AndreasReitberger.API.REST
         public virtual async Task<byte[]?> DownloadFileFromUriAsync(
             string path,
             Dictionary<string, IAuthenticationHeader> authHeaders,
+            Dictionary<string, string>? headers = null,
             Dictionary<string, string>? urlSegments = null,
             int timeout = 10000
             )
@@ -382,6 +383,13 @@ namespace AndreasReitberger.API.REST
                 request.RequestFormat = DataFormat.Json;
                 request.Method = Method.Get;
                 request.Timeout = TimeSpan.FromMilliseconds(timeout);
+                if (headers?.Count > 0)
+                {
+                    foreach (KeyValuePair<string, string> segment in headers)
+                    {
+                        request.AddHeader(segment.Key, segment.Value);
+                    }
+                }
                 if (urlSegments?.Count > 0)
                 {
                     foreach (KeyValuePair<string, string> segment in urlSegments)
