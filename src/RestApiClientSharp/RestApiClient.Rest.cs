@@ -1,5 +1,6 @@
 ﻿using AndreasReitberger.API.REST.Events;
 using AndreasReitberger.API.REST.Interfaces;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 #if DEBUG
 using System.Diagnostics;
@@ -139,7 +140,13 @@ namespace AndreasReitberger.API.REST
                 };
                 if (jsonObject is not null)
                 {
-                    request.AddJsonBody(jsonObject, "application/json");
+                    if (jsonObject is string body)
+                        request.AddJsonBody(body, "application/json");
+                    else
+                    {
+                        body = JsonConvert.SerializeObject(jsonObject, DefaultNewtonsoftJsonSerializerSettings);
+                        request.AddJsonBody(body, "application/json");
+                    }
                 }
                 if (urlSegments is not null)
                 {
