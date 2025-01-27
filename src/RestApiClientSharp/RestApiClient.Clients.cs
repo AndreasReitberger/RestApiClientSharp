@@ -29,6 +29,7 @@ namespace AndreasReitberger.API.REST
         [ObservableProperty]
         [JsonIgnore, XmlIgnore]
         public partial RateLimitedHandler? RateLimitedHandler { get; set; }
+
         public static RateLimiter DefaultLimiter = new TokenBucketRateLimiter(new()
         {
             TokenLimit = 5,
@@ -42,9 +43,9 @@ namespace AndreasReitberger.API.REST
         [ObservableProperty]
         [JsonIgnore, XmlIgnore]
         public partial RateLimiter? Limiter { get; set; }
-
         partial void OnLimiterChanged(RateLimiter? value) => UpdateRestClientInstance();
 #endif
+
         [ObservableProperty]
         public partial bool AuthenticationFailed { get; set; } = false;
 
@@ -53,12 +54,10 @@ namespace AndreasReitberger.API.REST
 
         [ObservableProperty]
         public partial string ApiTargetPath { get; set; } = string.Empty;
-
         partial void OnApiTargetPathChanged(string value) => UpdateRestClientInstance();
 
         [ObservableProperty]
         public partial string ApiVersion { get; set; } = "v1";
-
         partial void OnApiVersionChanged(string value) => UpdateRestClientInstance();
         #endregion
 
