@@ -184,7 +184,7 @@ namespace AndreasReitberger.API.REST
                     {
                         RestResponse? respone = await RestClient.ExecuteAsync(request, cts.Token).ConfigureAwait(false);
 #if DEBUG
-                        Debug.WriteLine($"REST: Result = '{(respone?.IsSuccessful is true ? "successfully" : "failed")} (Code: {respone?.StatusCode})'\n{respone?.Content}");
+                        //Debug.WriteLine($"REST: Result = '{(respone?.IsSuccessful is true ? "successfully" : "failed")} (Code: {respone?.StatusCode})'\n{respone?.Content}");
 #endif
                         if (ValidateResponse(respone, fullUri) is RestApiRequestRespone res)
                         {
@@ -213,12 +213,16 @@ namespace AndreasReitberger.API.REST
                 }
                 catch (HttpRequestException hexp)
                 {
-                    // Throws exception on timeout, not actually an error but indicates if the server is not reachable.
-                    if (!IsOnline)
+                    OnRestApiError(new()
                     {
-                        OnError(new UnhandledExceptionEventArgs(hexp, false));
-                        apiRsponeResult.Exception = hexp;
-                    }
+                        Exception = hexp,
+                        Message = hexp.Message,
+#if NET6_0_OR_GREATER
+                        Status = hexp.StatusCode.ToString(),
+#endif
+                        Uri = fullUri,
+                    });
+                    apiRsponeResult.Exception = hexp;                  
                 }
                 catch (TimeoutException toexp)
                 {
@@ -360,7 +364,7 @@ namespace AndreasReitberger.API.REST
             }
             return apiRsponeResult;
         }
-        #endregion
+#endregion
 
         #region Download
         public virtual async Task<byte[]?> DownloadFileFromUriAsync(
@@ -513,7 +517,7 @@ namespace AndreasReitberger.API.REST
             return default;
         }
 
-        #endregion
+#endregion
 
     }
 }
