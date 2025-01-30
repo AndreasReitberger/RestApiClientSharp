@@ -30,11 +30,11 @@ jobs:
         dotnet-version: 9.0.x
     - name: Restore dependencies
       run: |
-        dotnet restore src/RestApiClientSharp/RestApiClientSharp.csproj
-        dotnet restore src/RestApiClientSharp.Test.NUnit/RestApiClientSharp.Test.NUnit.csproj
+        dotnet restore src/RestApiClientSharp/RestApiClientSharp.csproj -p:TargetFramework=net9.0
+        dotnet restore src/RestApiClientSharp.Test.NUnit/RestApiClientSharp.Test.NUnit.csproj -p:TargetFramework=net9.0
     - name: Build
       run: | 
-        dotnet build -c Release src/RestApiClientSharp/RestApiClientSharp.csproj
-        dotnet build -c Release src/RestApiClientSharp.Test.NUnit/RestApiClientSharp.Test.NUnit.csproj
+        dotnet build -c Release src/RestApiClientSharp/RestApiClientSharp.csproj -p:TargetFramework=net9.0
+        dotnet build -c Release src/RestApiClientSharp.Test.NUnit/RestApiClientSharp.Test.NUnit.csproj -p:TargetFramework=net9.0
     - name: Test
-      run: dotnet test -c Release --no-build --verbosity normal src/RestApiClientSharp.Test.NUnit/RestApiClientSharp.Test.NUnit.csproj
+      run: dotnet test -c Release --no-build --verbosity normal src/RestApiClientSharp.Test.NUnit/RestApiClientSharp.Test.NUnit.csproj  -p:TargetFramework=net9.0
