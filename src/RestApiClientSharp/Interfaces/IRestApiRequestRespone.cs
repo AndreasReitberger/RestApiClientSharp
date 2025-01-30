@@ -8,8 +8,8 @@
         public bool IsOnline { get; set; }
         public bool Succeeded { get; set; }
         public bool HasAuthenticationError { get; set; }
-
         public IRestEventArgs? EventArgs { get; set; }
+        public Exception? Exception { get; set; }
         #endregion
     }
 }
