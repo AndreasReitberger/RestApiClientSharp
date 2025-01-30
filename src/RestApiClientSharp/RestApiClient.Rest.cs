@@ -198,6 +198,7 @@ namespace AndreasReitberger.API.REST
                     if (!IsOnline)
                     {
                         OnError(new UnhandledExceptionEventArgs(texp, false));
+                        apiRsponeResult.Exception = texp;
                     }
                 }
                 catch (HttpRequestException hexp)
@@ -206,6 +207,7 @@ namespace AndreasReitberger.API.REST
                     if (!IsOnline)
                     {
                         OnError(new UnhandledExceptionEventArgs(hexp, false));
+                        apiRsponeResult.Exception = hexp;
                     }
                 }
                 catch (TimeoutException toexp)
@@ -214,12 +216,14 @@ namespace AndreasReitberger.API.REST
                     if (!IsOnline)
                     {
                         OnError(new UnhandledExceptionEventArgs(toexp, false));
+                        apiRsponeResult.Exception = toexp;
                     }
                 }
             }
             catch (Exception exc)
             {
                 OnError(new UnhandledExceptionEventArgs(exc, false));
+                apiRsponeResult.Exception = exc;
             }
             return apiRsponeResult;
         }
@@ -317,6 +321,7 @@ namespace AndreasReitberger.API.REST
                     if (!IsOnline)
                     {
                         OnError(new UnhandledExceptionEventArgs(texp, false));
+                        apiRsponeResult.Exception = texp;
                     }
                 }
                 catch (HttpRequestException hexp)
@@ -325,6 +330,7 @@ namespace AndreasReitberger.API.REST
                     if (!IsOnline)
                     {
                         OnError(new UnhandledExceptionEventArgs(hexp, false));
+                        apiRsponeResult.Exception = hexp;
                     }
                 }
                 catch (TimeoutException toexp)
@@ -333,12 +339,14 @@ namespace AndreasReitberger.API.REST
                     if (!IsOnline)
                     {
                         OnError(new UnhandledExceptionEventArgs(toexp, false));
+                        apiRsponeResult.Exception = toexp;
                     }
                 }
             }
             catch (Exception exc)
             {
                 OnError(new UnhandledExceptionEventArgs(exc, false));
+                apiRsponeResult.Exception = exc;
             }
             return apiRsponeResult;
         }

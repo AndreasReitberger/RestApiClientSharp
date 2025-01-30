@@ -23,6 +23,9 @@ namespace AndreasReitberger.API.REST
 
         [ObservableProperty]
         public partial IRestEventArgs? EventArgs { get; set; }
+
+        [ObservableProperty]
+        public partial Exception? Exception { get; set; }
         #endregion
 
         #region Overrides
