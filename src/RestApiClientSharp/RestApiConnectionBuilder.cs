@@ -1,5 +1,6 @@
 ﻿using AndreasReitberger.API.REST.Interfaces;
 using System.Collections.Generic;
+using System.Threading.RateLimiting;
 
 namespace AndreasReitberger.API.REST
 {
@@ -29,6 +30,7 @@ namespace AndreasReitberger.API.REST
                 _client.ApiVersion = version;
                 return this;
             }
+
             public RestApiConnectionBuilder WithApiKey(string tokenName, IAuthenticationHeader authHeader)
             {
                 _client.AuthHeaders = new Dictionary<string, IAuthenticationHeader>() { { tokenName, authHeader } };
@@ -39,6 +41,39 @@ namespace AndreasReitberger.API.REST
             {
                 _client.ApiTargetPath = webAddress;
                 _client.AuthHeaders = new Dictionary<string, IAuthenticationHeader>() { { tokenName, authHeader } };
+                return this;
+            }
+
+            /// <summary>
+            /// Set the rate limiter for the rest api connection
+            /// </summary>
+            /// <param name="autoReplenishment"></param>
+            /// <param name="tokenLimit">Maximum number of tokens that can be in the bucket at any time</param>
+            /// <param name="tokensPerPeriod">Maximum number of tokens to be restored in each replenishment</param>
+            /// <param name="replenishmentPeriod">Enable auto replenishment</param>
+            /// <param name="queueLimit">Size of the queue</param>
+            /// <returns><c>RestApiConnectionBuilder</c></returns>
+            public RestApiConnectionBuilder WithRateLimiter(bool autoReplenishment, int tokenLimit, int tokensPerPeriod, double replenishmentPeriod, int queueLimit = int.MaxValue)
+            {
+                _client.Limiter = new TokenBucketRateLimiter(new()
+                {
+                    TokenLimit = tokenLimit,
+                    TokensPerPeriod = tokensPerPeriod,
+                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                    QueueLimit = queueLimit,
+                    ReplenishmentPeriod = TimeSpan.FromSeconds(replenishmentPeriod),
+                    AutoReplenishment = true,
+                });
+                return this;
+            }
+            /// <summary>
+            /// Set the timeout for the connection in ms (default is 10000 ms)
+            /// </summary>
+            /// <param name="timeout">The timeout in ms</param>
+            /// <returns><c>RestApiConnectionBuilder</c></returns>
+            public RestApiConnectionBuilder WithTimeout(int timeout = 10000)
+            {
+                _client.DefaultTimeout = timeout;
                 return this;
             }
 
