@@ -189,6 +189,16 @@ namespace AndreasReitberger.API.REST
                         if (ValidateResponse(respone, fullUri) is RestApiRequestRespone res)
                         {
                             apiRsponeResult = res;
+                            if (!apiRsponeResult.Succeeded && apiRsponeResult.EventArgs is not null)
+                            {
+                                OnRestApiError(new()
+                                {
+                                    Exception = apiRsponeResult.EventArgs.Exception,
+                                    Message = apiRsponeResult.EventArgs.Message,
+                                    Status = apiRsponeResult.EventArgs.Status,
+                                    Uri = apiRsponeResult.EventArgs.Uri,
+                                });
+                            }
                         }
                     }
                 }

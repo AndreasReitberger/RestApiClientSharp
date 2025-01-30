@@ -1,6 +1,10 @@
 using AndreasReitberger.API.REST;
 using AndreasReitberger.API.REST.Enums;
+using AndreasReitberger.API.REST.Interfaces;
 using Newtonsoft.Json;
+using RestApiClientSharp.Test.NUnit.Model;
+using RestSharp;
+using System.Drawing;
 
 namespace RestApiClientSharp.Test.NUnit
 {
@@ -22,7 +26,11 @@ namespace RestApiClientSharp.Test.NUnit
                 .Build();
             client.Error += (sender, args) =>
             {
-                Assert.Fail(args?.ToString());
+                Assert.Fail($"Error: {args?.ToString()}");
+            };
+            client.RestApiError += (sender, args) =>
+            {
+                Assert.Fail($"REST-Error: {args?.ToString()}");
             };
         }
         #endregion
@@ -46,6 +54,40 @@ namespace RestApiClientSharp.Test.NUnit
         }
         #endregion
 
+        #region Query
+        [Test]
+        public async Task TestQueryAsync()
+        {
+            try
+            {
+                if (client is null) throw new NullReferenceException($"The client was null!");
+                // Create a new Invoice object
+
+                IRestApiRequestRespone? result = null;
+                string? json = null;
+                string targetUri = $"";
+                result = await client.SendRestApiRequestAsync(
+                        requestTargetUri: targetUri,
+                        method: Method.Get,
+                        command: "",
+                        jsonObject: null,
+                        authHeaders: client.AuthHeaders,
+                        urlSegments: null,
+                        cts: default
+                        )
+                    .ConfigureAwait(false);
+                json = result?.Result;
+                Assert.That(!string.IsNullOrEmpty(json));
+                TestJson? resultObject = client.GetObjectFromJsonSystem<TestJson>(json);
+                Assert.That(resultObject, Is.Not.EqualTo(null));
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(ex.Message);
+            }
+        }
+        #endregion
+
         #region Cleanup
         [TearDown]
         public void BaseTearDown()
@@ -53,11 +95,5 @@ namespace RestApiClientSharp.Test.NUnit
             client?.Dispose();
         }
         #endregion
-
-        [Test]
-        public void Test1()
-        {
-            Assert.Pass();
-        }
     }
 }
