@@ -106,7 +106,7 @@ namespace AndreasReitberger.API.REST
 #endif
             RestClientOptions options = new($"{ApiTargetPath}{ApiVersion}/")
             {
-                ThrowOnAnyError = true,
+                ThrowOnAnyError = false,
                 Timeout = TimeSpan.FromSeconds(DefaultTimeout / 1000),
             };
             if (EnableProxy && !string.IsNullOrEmpty(ProxyAddress))
