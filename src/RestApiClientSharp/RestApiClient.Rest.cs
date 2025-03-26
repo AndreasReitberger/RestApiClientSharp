@@ -99,7 +99,7 @@ namespace AndreasReitberger.API.REST
                     {
                         Status = respone.ResponseStatus.ToString(),
                         Exception = respone.ErrorException,
-                        Message = respone.ErrorMessage,
+                        Message = respone.Content ?? respone.ErrorMessage,
                         Uri = targetUri,
                     });
                 }
