@@ -4,7 +4,6 @@ using AndreasReitberger.API.REST.Interfaces;
 using Newtonsoft.Json;
 using RestApiClientSharp.Test.NUnit.Model;
 using RestSharp;
-using System.Drawing;
 
 namespace RestApiClientSharp.Test.NUnit
 {
