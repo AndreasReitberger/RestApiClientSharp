@@ -96,7 +96,8 @@ namespace AndreasReitberger.API.REST
 
         public virtual void UpdateRestClientInstance()
         {
-            if (string.IsNullOrEmpty(ApiTargetPath) || string.IsNullOrEmpty(ApiVersion) || UpdatingClients)
+            //  || string.IsNullOrEmpty(ApiVersion) is allowed to be empty
+            if (string.IsNullOrEmpty(ApiTargetPath) || ApiVersion is null || UpdatingClients)
             {
                 return;
             }
