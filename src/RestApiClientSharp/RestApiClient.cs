@@ -50,6 +50,10 @@ namespace AndreasReitberger.API.REST
 
         #endregion
 
+        #region Variables
+        const string defaultApiVersion = "v1";
+        #endregion
+
         #region Properties
 
         #region General
@@ -84,6 +88,15 @@ namespace AndreasReitberger.API.REST
             Id = Guid.NewGuid();
             IsInitialized = false;
         }
+        public RestApiClient(string url, string version = defaultApiVersion)
+        {
+            Id = Guid.NewGuid();
+            AuthHeaders = [];
+            ApiTargetPath = url;
+            ApiVersion = version;
+            IsInitialized = true;
+            Instance = this;
+        }
         public RestApiClient(IAuthenticationHeader authHeader, string tokenName)
         {
             Id = Guid.NewGuid();
@@ -91,7 +104,7 @@ namespace AndreasReitberger.API.REST
             IsInitialized = true;
             Instance = this;
         }
-        public RestApiClient(IAuthenticationHeader authHeader, string tokenName, string url, string version = "v1")
+        public RestApiClient(IAuthenticationHeader authHeader, string tokenName, string url, string version = defaultApiVersion)
         {
             Id = Guid.NewGuid();
             AuthHeaders = new Dictionary<string, IAuthenticationHeader>() { { tokenName, authHeader } };
