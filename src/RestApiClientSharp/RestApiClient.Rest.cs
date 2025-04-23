@@ -159,6 +159,7 @@ namespace AndreasReitberger.API.REST
                 {
                     foreach (KeyValuePair<string, IAuthenticationHeader> authHeader in authHeaders)
                     {
+                        if (authHeader.Value is null) continue;
                         switch (authHeader.Value.Target)
                         {
                             case Enums.AuthenticationHeaderTarget.UrlSegment:
