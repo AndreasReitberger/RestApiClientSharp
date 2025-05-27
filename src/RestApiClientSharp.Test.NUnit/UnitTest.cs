@@ -25,11 +25,17 @@ namespace RestApiClientSharp.Test.NUnit
                 .Build();
             client.Error += (sender, args) =>
             {
-                Assert.Fail($"Error: {args?.ToString()}");
+                if (!client.ReThrowOnError)
+                {
+                    Assert.Fail($"Error: {args?.ToString()}");
+                }
             };
             client.RestApiError += (sender, args) =>
             {
-                Assert.Fail($"REST-Error: {args?.ToString()}");
+                if (!client.ReThrowOnError)
+                {
+                    Assert.Fail($"REST-Error: {args?.ToString()}");
+                }
             };
         }
         #endregion
@@ -83,6 +89,33 @@ namespace RestApiClientSharp.Test.NUnit
             catch (Exception ex)
             {
                 Assert.Fail(ex.Message);
+            }
+        }
+        #endregion
+
+        #region Exception
+        [Test]
+        public async Task TestExecption()
+        {
+            try
+            {
+                client.ReThrowOnError = true;
+                var result = await client.SendRestApiRequestAsync(
+                        requestTargetUri: "https://github.com/AndreasReitberger/LexOfficeClientSharp/-1",
+                        method: Method.Get,
+                        command: "",
+                        jsonObject: null,
+                        authHeaders: client.AuthHeaders,
+                        urlSegments: null,
+                        cts: default
+                        )
+                    .ConfigureAwait(false);
+
+                Assert.Fail("Should Throw");
+            }
+            catch (Exception ex)
+            {
+                Assert.That(ex.Message == "Request failed with status code NotFound");
             }
         }
         #endregion
