@@ -92,14 +92,13 @@ namespace AndreasReitberger.API.REST
         public virtual WebsocketClient? GetWebSocketClient(CookieContainer? cookies = null)
         {
             if (string.IsNullOrEmpty(WebSocketTargetUri)) return null;
-
             Func<ClientWebSocket> factory = new(() => new ClientWebSocket
             {
                 Options =
                 {
-                    KeepAliveInterval = TimeSpan.FromSeconds(5),
+                    KeepAliveInterval = TimeSpan.FromSeconds(2),
                     Cookies = cookies ?? new(),
-                }
+                },
             });
 
             WebsocketClient client = new(new Uri(WebSocketTargetUri), factory)
