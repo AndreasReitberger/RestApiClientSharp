@@ -96,8 +96,9 @@ namespace AndreasReitberger.API.REST
             {
                 Options =
                 {
-                    KeepAliveInterval = TimeSpan.FromSeconds(2),
+                    KeepAliveInterval = TimeSpan.FromSeconds(5),
                     Cookies = cookies ?? new(),
+                    RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true,
                 },
             });
 
@@ -197,17 +198,45 @@ namespace AndreasReitberger.API.REST
                     return;
                 }
 #endif            
-                await DisconnectWebSocketAsync();
+                await DisconnectWebSocketAsync().ConfigureAwait(false);
                 WebSocket = GetWebSocketClient(cookies);
                 if (WebSocket is null) return;
+                await WebSocket.StartOrFail().ContinueWith(t =>
+                {
+                    for (int i = 0; i < commandsOnConnect?.Length; i++)
+                    {
+                        WebSocket.Send(commandsOnConnect[i]);
+#if DEBUG
+                        Debug.WriteLine($"WebSocket: Sent onConnection command '{commandsOnConnect[i]}' at {DateTime.Now}");
+#endif
+                    }
+                    if (EnablePing)
+                        SendPingAsync();
+                });
+                /*
                 if (EnablePing)
+                {
                     await WebSocket.StartOrFail().ContinueWith(t => SendPingAsync());
+                }
                 else
-                    await WebSocket.StartOrFail();
+                {
+                    await WebSocket.StartOrFail().ContinueWith(t =>
+                    {
+                        for (int i = 0; i < commandsOnConnect?.Length; i++)
+                        {
+                            WebSocket.Send(commandsOnConnect[i]);
+#if DEBUG
+                            Debug.WriteLine($"WebSocket: Sent onConnection command '{commandsOnConnect[i]}' at {DateTime.Now}");
+#endif
+                        }
+                    });
+                }
+                */
 #if DEBUG
                 Debug.WriteLine($"WebSocket: Connection established at {DateTime.Now}");
 #endif
-                if (commandsOnConnect is not null && WebSocket is not null)
+                /*
+                if (EnablePing && commandsOnConnect is not null && WebSocket is not null)
                 {
                     // Send command
                     for (int i = 0; i < commandsOnConnect?.Length; i++)
@@ -218,6 +247,7 @@ namespace AndreasReitberger.API.REST
 #endif
                     }
                 }
+                */
             }
             catch (Exception exc)
             {
@@ -288,12 +318,7 @@ namespace AndreasReitberger.API.REST
                         }
                     });
                 }
-                if (string.IsNullOrEmpty(SessionId) && msg.Text.Contains("session", StringComparison.CurrentCultureIgnoreCase))
-                {
-                    JObject? obj = JsonConvert.DeserializeObject<JObject>(msg.Text);
-                    var sessObj = obj?.SelectToken("session");
-                    SessionId = sessObj?.Value<string>() ?? "";
-                }
+
                 OnWebSocketMessageReceived(new WebsocketEventArgs()
                 {
                     CallbackId = PingCounter,
