@@ -1,5 +1,6 @@
 ﻿using AndreasReitberger.API.REST.Interfaces;
 using Newtonsoft.Json;
+using System.Net;
 
 namespace AndreasReitberger.API.REST
 {
@@ -26,6 +27,9 @@ namespace AndreasReitberger.API.REST
 
         [ObservableProperty]
         public partial Exception? Exception { get; set; }
+
+        [ObservableProperty]
+        public partial CookieCollection? Cookies { get; set; }
         #endregion
 
         #region Overrides

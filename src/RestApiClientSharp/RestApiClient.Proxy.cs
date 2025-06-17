@@ -109,6 +109,7 @@ namespace AndreasReitberger.API.REST
             {
                 ThrowOnAnyError = false,
                 Timeout = TimeSpan.FromSeconds(DefaultTimeout / 1000),
+                CookieContainer = new CookieContainer()
             };
             if (EnableProxy && !string.IsNullOrEmpty(ProxyAddress))
             {
