@@ -1,4 +1,6 @@
-﻿namespace AndreasReitberger.API.REST.Interfaces
+﻿using System.Net;
+
+namespace AndreasReitberger.API.REST.Interfaces
 {
     public interface IRestApiRequestRespone
     {
@@ -10,6 +12,7 @@
         public bool HasAuthenticationError { get; set; }
         public IRestEventArgs? EventArgs { get; set; }
         public Exception? Exception { get; set; }
+        public CookieCollection? Cookies { get; set; }
         #endregion
     }
 }

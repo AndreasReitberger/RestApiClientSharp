@@ -65,6 +65,7 @@ namespace AndreasReitberger.API.REST
                         Message = respone.ErrorMessage,
                         Uri = targetUri,
                     };
+                    apiRsponeResult.Cookies = respone.Cookies;
                 }
                 else if (respone.StatusCode == HttpStatusCode.NonAuthoritativeInformation
                     || respone.StatusCode == HttpStatusCode.Forbidden
@@ -73,6 +74,7 @@ namespace AndreasReitberger.API.REST
                 {
                     apiRsponeResult.IsOnline = true;
                     apiRsponeResult.HasAuthenticationError = true;
+                    apiRsponeResult.Cookies = respone.Cookies;
                     apiRsponeResult.EventArgs = new RestEventArgs()
                     {
                         Status = respone.ResponseStatus.ToString(),
@@ -85,6 +87,7 @@ namespace AndreasReitberger.API.REST
                 {
                     apiRsponeResult.IsOnline = true;
                     apiRsponeResult.HasAuthenticationError = false;
+                    apiRsponeResult.Cookies = respone.Cookies;
                     apiRsponeResult.EventArgs = new RestEventArgs()
                     {
                         Status = respone.ResponseStatus.ToString(),

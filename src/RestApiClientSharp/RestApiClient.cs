@@ -15,7 +15,11 @@ namespace AndreasReitberger.API.REST
         #region Instance
 
         static RestApiClient? _instance = null;
+#if NET9_0_OR_GREATER
+        static readonly Lock Lock = new();
+#else
         static readonly object Lock = new();
+#endif
         public static RestApiClient Instance
         {
             get
@@ -48,7 +52,7 @@ namespace AndreasReitberger.API.REST
         [ObservableProperty]
         public partial bool IsInitialized { get; set; } = false;
 
-        #endregion
+#endregion
 
         #region Variables
         const string defaultApiVersion = "v1";
