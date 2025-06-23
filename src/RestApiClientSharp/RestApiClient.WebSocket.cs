@@ -1,7 +1,6 @@
 ﻿using AndreasReitberger.API.REST.Events;
 using AndreasReitberger.API.REST.Interfaces;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 #if DEBUG
 using System.Diagnostics;
 #endif
@@ -10,6 +9,7 @@ using Websocket.Client;
 using System.Text.RegularExpressions;
 using System.Net.WebSockets;
 using System.Net;
+using System.Threading;
 
 namespace AndreasReitberger.API.REST
 {
@@ -23,6 +23,10 @@ namespace AndreasReitberger.API.REST
 
         [ObservableProperty]
         [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial CancellationTokenSource? CtsPinging { get; set; }
+
+        [ObservableProperty]
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial bool IsListening { get; set; } = false;
 
         [ObservableProperty]
@@ -32,6 +36,17 @@ namespace AndreasReitberger.API.REST
         [ObservableProperty]
         public partial int RefreshInterval { get; set; } = 5;
         partial void OnRefreshIntervalChanged(int value)
+        {
+            if (IsListening)
+            {
+                _ = StartListeningAsync(target: WebSocketTargetUri, stopActiveListening: true, refreshFunction: OnRefresh);
+            }
+        }
+
+
+        [ObservableProperty]
+        public partial int KeepAliveInterval { get; set; } = 5;
+        partial void OnKeepAliveIntervalChanged(int value)
         {
             if (IsListening)
             {
@@ -96,15 +111,15 @@ namespace AndreasReitberger.API.REST
             {
                 Options =
                 {
-                    KeepAliveInterval = TimeSpan.FromSeconds(5),
+                    KeepAliveInterval = KeepAliveInterval > 0 ? TimeSpan.FromSeconds(KeepAliveInterval) : TimeSpan.Zero,
                     Cookies = cookies ?? new(),
                     RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true,
                 },
             });
-
             WebsocketClient client = new(new Uri(WebSocketTargetUri), factory)
             {
                 ReconnectTimeout = TimeSpan.FromSeconds(15),
+                IsReconnectionEnabled = true,
             };
             client.ReconnectionHappened.Subscribe(info =>
             {
@@ -127,7 +142,28 @@ namespace AndreasReitberger.API.REST
             return client;
         }
 
-        public virtual Task SendPingAsync() => SendWebSocketCommandAsync(BuildPingCommand());
+        public virtual async Task SendPingAsync()
+        {
+            string pingCmd = BuildPingCommand();
+#if DEBUG
+            Debug.WriteLine($"WebSocket: Ping sent '{pingCmd}' at {DateTime.Now}");
+#endif
+            await SendWebSocketCommandAsync(pingCmd);
+        }
+
+        public virtual async Task PingingAsync(CancellationTokenSource cts, int interval)
+        {
+            while (cts.IsCancellationRequested is false && WebSocket?.IsRunning is true)
+            {
+                long timestamp = DateTimeOffset.Now.ToUnixTimeSeconds();
+                if (EnablePing && LastPingTimestamp + PingInterval < DateTimeOffset.Now.ToUnixTimeSeconds())
+                {
+                    PingCounter++;
+                    LastPingTimestamp = timestamp;
+                    await SendPingAsync();
+                }
+            }
+        }
 
         public virtual Task SendWebSocketCommandAsync(string command) => Task.Run(() => WebSocket?.Send(command));
 
@@ -201,8 +237,14 @@ namespace AndreasReitberger.API.REST
                 await DisconnectWebSocketAsync().ConfigureAwait(false);
                 WebSocket = GetWebSocketClient(cookies);
                 if (WebSocket is null) return;
-                await WebSocket.StartOrFail().ContinueWith(t =>
+                await WebSocket.StartOrFail().ContinueWith(async t =>
                 {
+#if DEBUG
+                    if (t.IsFaulted || t.IsCanceled)
+                    {
+                        Debug.WriteLine($"WebSocket: Start failed or canceled! {t}");
+                    }
+#endif
                     for (int i = 0; i < commandsOnConnect?.Length; i++)
                     {
                         WebSocket.Send(commandsOnConnect[i]);
@@ -211,8 +253,14 @@ namespace AndreasReitberger.API.REST
 #endif
                     }
                     if (EnablePing)
-                        SendPingAsync();
+                        await SendPingAsync();
                 });
+                if (EnablePing)
+                {
+                    CtsPinging?.Cancel();
+                    CtsPinging = new();
+                    Task.Run(async () => await PingingAsync(CtsPinging, PingInterval));
+                }
                 /*
                 if (EnablePing)
                 {
@@ -286,7 +334,7 @@ namespace AndreasReitberger.API.REST
                     LastPingTimestamp = timestamp;
                     Task.Run(SendPingAsync);
 #if DEBUG
-                    Debug.WriteLine($"WS-Ping sent: {DateTime.Now}");
+                    Debug.WriteLine($"WebSocket: Ping sent: {DateTime.Now}");
 #endif
                 }
                 // Handle refreshing more often the pinging
@@ -346,6 +394,7 @@ namespace AndreasReitberger.API.REST
             try
             {
                 IsListening = false;
+                CtsPinging?.Cancel();
                 //StopPingTimer();
                 OnWebSocketDisconnected(new RestEventArgs()
                 {
