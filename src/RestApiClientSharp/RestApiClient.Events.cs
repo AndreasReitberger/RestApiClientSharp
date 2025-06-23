@@ -1,12 +1,14 @@
 ﻿using AndreasReitberger.API.REST.Events;
 using AndreasReitberger.API.REST.Interfaces;
+using System.IO;
 
 namespace AndreasReitberger.API.REST
 {
     public partial class RestApiClient : ObservableObject, IRestApiClient
     {
 
-        #region EventHandlers
+        #region General
+
         public event EventHandler? Error;
         [ObservableProperty]
         public partial bool ReThrowOnError { get; set; } = false;
@@ -71,5 +73,49 @@ namespace AndreasReitberger.API.REST
         }
         #endregion
 
+        #region WebSocket
+
+        public event EventHandler<RestEventArgs>? WebSocketConnected;
+        protected virtual void OnWebSocketConnected(RestEventArgs e)
+        {
+            WebSocketConnected?.Invoke(this, e);
+        }
+
+        public event EventHandler<RestEventArgs>? WebSocketDisconnected;
+        protected virtual void OnWebSocketDisconnected(RestEventArgs e)
+        {
+            WebSocketDisconnected?.Invoke(this, e);
+        }
+
+        public event EventHandler<ErrorEventArgs>? WebSocketError;
+        protected virtual void OnWebSocketError(ErrorEventArgs e)
+        {
+            WebSocketError?.Invoke(this, e);
+        }
+
+        public event EventHandler<WebsocketEventArgs>? WebSocketMessageReceived;
+        protected virtual void OnWebSocketMessageReceived(WebsocketEventArgs e)
+        {
+            WebSocketMessageReceived?.Invoke(this, e);
+        }
+
+        public event EventHandler<WebsocketEventArgs>? WebSocketDataReceived;
+        protected virtual void OnWebSocketDataReceived(WebsocketEventArgs e)
+        {
+            WebSocketDataReceived?.Invoke(this, e);
+        }
+
+        public event EventHandler<LoginRequiredEventArgs>? LoginResultReceived;
+        protected virtual void OnLoginResultReceived(LoginRequiredEventArgs e)
+        {
+            LoginResultReceived?.Invoke(this, e);
+        }
+
+        public event EventHandler<SessionChangedEventArgs>? SessionChanged;
+        protected virtual void OnSessionChangedEvent(SessionChangedEventArgs e)
+        {
+            SessionChanged?.Invoke(this, e);
+        }
+        #endregion
     }
 }
