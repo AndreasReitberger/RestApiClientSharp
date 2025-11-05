@@ -93,6 +93,42 @@ namespace RestApiClientSharp.Test.NUnit
         }
         #endregion
 
+        #region WebSocket
+        [Test]
+        public async Task TestWebSocketAsync()
+        {
+            try
+            {
+                if (client is null) throw new NullReferenceException($"The client was null!");
+                // Create a new Invoice object
+                client.WebSocketTargetUri = "wss://";
+                client.WebSocketError += (sender, args) =>
+                {
+                    Assert.Fail($"WebSocket Error: {args?.ToString()}");
+                };
+                client.WebSocketMessageReceived += (sender, args) =>
+                {
+                   // Handle incoming WebSocket messages here
+                    Console.WriteLine($"WebSocket Message Received: {args?.Message}");
+                };
+
+                await client.ConnectWebSocketAsync(client.WebSocketTargetUri!).ConfigureAwait(false);
+                Assert.That(client.IsListening);
+                CancellationTokenSource cts = new(new TimeSpan(0, 15, 0));
+                while (cts.IsCancellationRequested == false)
+                {
+                    // Keep the WebSocket connection alive for 15 minutes
+                    await Task.Delay(1000, cts.Token).ConfigureAwait(false);
+                }
+                Assert.That(client.IsListening);
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(ex.Message);
+            }
+        }
+        #endregion
+
         #region Exception
         [Test]
         public async Task TestExecption()

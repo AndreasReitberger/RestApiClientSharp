@@ -62,7 +62,7 @@ namespace AndreasReitberger.API.REST
                     QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
                     QueueLimit = queueLimit,
                     ReplenishmentPeriod = TimeSpan.FromSeconds(replenishmentPeriod),
-                    AutoReplenishment = true,
+                    AutoReplenishment = autoReplenishment,
                 });
                 return this;
             }
@@ -74,6 +74,17 @@ namespace AndreasReitberger.API.REST
             public RestApiConnectionBuilder WithTimeout(int timeout = 10000)
             {
                 _client.DefaultTimeout = timeout;
+                return this;
+            }
+
+            /// <summary>
+            /// Sets the WebSocket address for the connection
+            /// </summary>
+            /// <param name="webSocketAddress">The full web address for the WebSocket</param>
+            /// <returns><c>RestApiConnectionBuilder</c></returns>
+            public RestApiConnectionBuilder WithWebSocket(string webSocketAddress)
+            {
+                _client.WebSocketTargetUri = webSocketAddress;
                 return this;
             }
 

@@ -6,10 +6,12 @@ using System.Diagnostics;
 #endif
 using System.Threading.Tasks;
 using Websocket.Client;
-using System.Text.RegularExpressions;
 using System.Net.WebSockets;
 using System.Net;
 using System.Threading;
+#if NETSTANDARD
+using System.Text.RegularExpressions;
+#endif
 
 namespace AndreasReitberger.API.REST
 {
@@ -233,7 +235,8 @@ namespace AndreasReitberger.API.REST
                 {
                     return;
                 }
-#endif            
+#endif
+                WebSocketTargetUri = target;
                 await DisconnectWebSocketAsync().ConfigureAwait(false);
                 WebSocket = GetWebSocketClient(cookies);
                 if (WebSocket is null) return;
@@ -259,7 +262,7 @@ namespace AndreasReitberger.API.REST
                 {
                     CtsPinging?.Cancel();
                     CtsPinging = new();
-                    Task.Run(async () => await PingingAsync(CtsPinging, PingInterval));
+                    _ = Task.Run(async () => await PingingAsync(CtsPinging, PingInterval));
                 }
                 /*
                 if (EnablePing)
