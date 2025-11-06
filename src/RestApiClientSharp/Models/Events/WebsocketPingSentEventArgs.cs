@@ -3,13 +3,11 @@ using Newtonsoft.Json;
 
 namespace AndreasReitberger.API.REST.Events
 {
-    public partial class JsonConvertEventArgs : EventArgs, IJsonConvertEventArgs
+    public partial class WebsocketPingSentEventArgs : WebsocketEventArgs, IWebsocketPingSentEventArgs
     {
         #region Properties
-        public string? Message { get; set; }
-        public string? OriginalString { get; set; }
-        public string? TargetType { get; set; }
-        public Exception? Exception { get; set; }
+        public DateTimeOffset? Timestamp { get; set; }
+        public string PingCommand { get; set; } = string.Empty;
         #endregion
 
         #region Overrides

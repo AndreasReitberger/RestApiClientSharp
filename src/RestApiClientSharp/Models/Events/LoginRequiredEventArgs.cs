@@ -3,13 +3,11 @@ using Newtonsoft.Json;
 
 namespace AndreasReitberger.API.REST.Events
 {
-    public partial class JsonConvertEventArgs : EventArgs, IJsonConvertEventArgs
+    public partial class LoginRequiredEventArgs : RestEventArgs, ILoginRequiredEventArgs
     {
         #region Properties
-        public string? Message { get; set; }
-        public string? OriginalString { get; set; }
-        public string? TargetType { get; set; }
-        public Exception? Exception { get; set; }
+        public ILoginData? LoginData { get; set; }
+        public bool LoginSucceeded { get; set; } = false;
         #endregion
 
         #region Overrides

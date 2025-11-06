@@ -3,13 +3,11 @@ using Newtonsoft.Json;
 
 namespace AndreasReitberger.API.REST.Events
 {
-    public partial class JsonConvertEventArgs : EventArgs, IJsonConvertEventArgs
+    public partial class ListeningChangedEventArgs : SessionChangedEventArgs, IListeningChangedEventArgs
     {
         #region Properties
-        public string? Message { get; set; }
-        public string? OriginalString { get; set; }
-        public string? TargetType { get; set; }
-        public Exception? Exception { get; set; }
+        public bool IsListening { get; set; } = false;
+        public bool IsListeningToWebSocket { get; set; } = false;
         #endregion
 
         #region Overrides

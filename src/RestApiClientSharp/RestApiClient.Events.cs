@@ -1,12 +1,14 @@
 ﻿using AndreasReitberger.API.REST.Events;
 using AndreasReitberger.API.REST.Interfaces;
+using System.IO;
 
 namespace AndreasReitberger.API.REST
 {
     public partial class RestApiClient : ObservableObject, IRestApiClient
     {
 
-        #region EventHandlers
+        #region General
+
         public event EventHandler? Error;
         [ObservableProperty]
         public partial bool ReThrowOnError { get; set; } = false;
@@ -71,5 +73,64 @@ namespace AndreasReitberger.API.REST
         }
         #endregion
 
+        #region WebSocket
+
+        public event EventHandler<WebsocketPingSentEventArgs>? WebSocketPingSent;
+        protected virtual void OnWebSocketPingSent(WebsocketPingSentEventArgs e)
+        {
+            WebSocketPingSent?.Invoke(this, e);
+        }
+
+        public event EventHandler<WebsocketEventArgs>? WebSocketConnected;
+        protected virtual void OnWebSocketConnected(WebsocketEventArgs e)
+        {
+            WebSocketConnected?.Invoke(this, e);
+        }
+
+        public event EventHandler<WebsocketEventArgs>? WebSocketDisconnected;
+        protected virtual void OnWebSocketDisconnected(WebsocketEventArgs e)
+        {
+            WebSocketDisconnected?.Invoke(this, e);
+        }
+
+        public event EventHandler<WebsocketEventArgs>? WebSocketError;
+        protected virtual void OnWebSocketError(WebsocketEventArgs e)
+        {
+            WebSocketError?.Invoke(this, e);
+        }
+
+        public event EventHandler<WebsocketEventArgs>? WebSocketMessageReceived;
+        protected virtual void OnWebSocketMessageReceived(WebsocketEventArgs e)
+        {
+            WebSocketMessageReceived?.Invoke(this, e);
+        }
+
+        public event EventHandler<WebsocketEventArgs>? WebSocketDataReceived;
+        protected virtual void OnWebSocketDataReceived(WebsocketEventArgs e)
+        {
+            WebSocketDataReceived?.Invoke(this, e);
+        }
+
+        public event EventHandler<LoginRequiredEventArgs>? LoginResultReceived;
+        protected virtual void OnLoginResultReceived(LoginRequiredEventArgs e)
+        {
+            LoginResultReceived?.Invoke(this, e);
+        }
+
+        #endregion
+
+        #region State Changes
+        public event EventHandler<ListeningChangedEventArgs>? ListeningChanged;
+        protected virtual void OnListeningChangedEvent(ListeningChangedEventArgs e)
+        {
+            ListeningChanged?.Invoke(this, e);
+        }
+
+        public event EventHandler<SessionChangedEventArgs>? SessionChanged;
+        protected virtual void OnSessionChangedEvent(SessionChangedEventArgs e)
+        {
+            SessionChanged?.Invoke(this, e);
+        }
+        #endregion
     }
 }

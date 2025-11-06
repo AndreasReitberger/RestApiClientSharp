@@ -4,6 +4,7 @@ using AndreasReitberger.API.REST.Interfaces;
 using Newtonsoft.Json;
 using RestApiClientSharp.Test.NUnit.Model;
 using RestSharp;
+using System.Diagnostics;
 
 namespace RestApiClientSharp.Test.NUnit
 {
@@ -93,12 +94,108 @@ namespace RestApiClientSharp.Test.NUnit
         }
         #endregion
 
+        #region WebSocket
+        [Test]
+        public async Task TestWebSocketAsync()
+        {
+            try
+            {
+                // https://websocket.org/tools/websocket-echo-server/
+                RestApiClient wsClient = new RestApiClient.RestApiConnectionBuilder()
+                    .WithWebSocket("wss://echo.websocket.org")
+                    .Build() ?? throw new NullReferenceException($"The client was null!");
+
+                wsClient.WebSocketError += (sender, args) =>
+                {
+                    Assert.Fail($"WebSocket Error: {args?.ToString()}");
+                };
+                wsClient.WebSocketMessageReceived += (sender, args) =>
+                {
+                   // Handle incoming WebSocket messages here
+                    Debug.WriteLine($"WebSocket Message Received: {args?.Message}");
+                };
+
+                await wsClient.ConnectWebSocketAsync(wsClient.WebSocketTargetUri!).ConfigureAwait(false);
+                Assert.That(wsClient.IsListening);
+                CancellationTokenSource cts = new(new TimeSpan(0, 15, 0));
+                while (cts.IsCancellationRequested == false)
+                {
+                    // Keep the WebSocket connection alive for 15 minutes
+                    await Task.Delay(1000, cts.Token).ConfigureAwait(false);
+                }
+                Assert.That(wsClient.IsListening);
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(ex.Message);
+            }
+        }
+
+        /*
+        [Test]
+        public async Task TestCustomWebSocketAsync()
+        {
+            try
+            {
+                string pingCmd = $"{{\"action\": \"ping\", \"data\": {{\"source\": \"App\"}}, \"printer\": \"\", \"callback_id\": 1}}";
+                RestApiClient wsClient = new RestApiClient.RestApiConnectionBuilder()
+                    .WithApiKey("apikey", new AuthenticationHeader()
+                    {
+                        Target = AuthenticationHeaderTarget.UrlSegment,
+                        Token = "",
+                        Type = AuthenticationTypeTarget.Both
+                    })
+                    .WithWebSocket("", 
+                        enablePing: true,
+                        pingCommand: pingCmd, 
+                        pingInterval: 5)
+                    .Build() ?? throw new NullReferenceException($"The client was null!");
+
+                CancellationTokenSource cts = new(new TimeSpan(0, 15, 0));
+                wsClient.WebSocketError += (sender, args) =>
+                {
+                    cts.Cancel();
+                    Assert.Fail($"WebSocket Error: {args?.ToString()}");
+                };
+                wsClient.WebSocketDisconnected += (sender, args) =>
+                {
+                    cts.Cancel();
+                    Assert.Fail($"WebSocket Disconnected: {args?.ToString()}");
+                };
+                wsClient.WebSocketMessageReceived += (sender, args) =>
+                {
+                   // Handle incoming WebSocket messages here
+                    Debug.WriteLine($"WebSocket Message Received: {args?.Message}");
+                };
+                wsClient.WebSocketPingSent += (sender, args) =>
+                {
+                    Debug.WriteLine($"WebSocket: Ping Sent {args?.PingCommand} ({args?.Timestamp})");
+                };
+
+                await wsClient.ConnectWebSocketAsync(wsClient.WebSocketTargetUri, pingCmd).ConfigureAwait(false);
+                Assert.That(wsClient.IsListening);
+                while (cts.IsCancellationRequested == false)
+                {
+                    // Keep the WebSocket connection alive for 15 minutes
+                    await Task.Delay(1000, cts.Token).ConfigureAwait(false);
+                }
+                Assert.That(wsClient.IsListening);
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(ex.Message);
+            }
+        }
+        */
+        #endregion
+
         #region Exception
         [Test]
         public async Task TestExecption()
         {
             try
             {
+                if (client is null) throw new NullReferenceException($"The client was null!");
                 client.ReThrowOnError = true;
                 var result = await client.SendRestApiRequestAsync(
                         requestTargetUri: "https://github.com/AndreasReitberger/LexOfficeClientSharp/-1",

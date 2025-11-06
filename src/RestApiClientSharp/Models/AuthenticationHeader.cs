@@ -18,6 +18,9 @@ namespace AndreasReitberger.API.REST
 
         [ObservableProperty]
         public partial AuthenticationHeaderTarget Target { get; set; } = AuthenticationHeaderTarget.Header;
+
+        [ObservableProperty]
+        public partial AuthenticationTypeTarget Type { get; set; } = AuthenticationTypeTarget.Rest;
         #endregion
 
         #region Overrides
