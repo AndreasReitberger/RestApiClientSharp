@@ -96,7 +96,6 @@ namespace AndreasReitberger.API.REST
 
         public virtual void UpdateRestClientInstance()
         {
-            //  || string.IsNullOrEmpty(ApiVersion) is allowed to be empty
             if (string.IsNullOrEmpty(ApiTargetPath) || ApiVersion is null || UpdatingClients)
             {
                 return;
@@ -105,7 +104,11 @@ namespace AndreasReitberger.API.REST
 #if !NETFRAMEWORK
             Limiter ??= DefaultLimiter;
 #endif
-            RestClientOptions options = new($"{ApiTargetPath}{ApiVersion}/")
+            Uri target = new(ApiTargetPath);
+            if (!string.IsNullOrEmpty(ApiVersion))
+                target = new Uri(target, ApiVersion);
+
+            RestClientOptions options = new(target)
             {
                 ThrowOnAnyError = false,
                 Timeout = TimeSpan.FromSeconds(DefaultTimeout / 1000),

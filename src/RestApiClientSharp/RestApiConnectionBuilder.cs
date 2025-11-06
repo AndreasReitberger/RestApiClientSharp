@@ -79,10 +79,23 @@ namespace AndreasReitberger.API.REST
             /// Sets the WebSocket address for the connection
             /// </summary>
             /// <param name="webSocketAddress">The full web address for the WebSocket</param>
+            /// <param name="tokenName">The name for the token (for instance `apikey`)</param>
+            /// <param name="authentication">The `AuthenticationHeader` for the token</param>
             /// <param name="pingCommand">The command sent on each ping action</param>
             /// <param name="pingInterval">The keep alive interval in seconds. 0 disables it</param>
             /// <param name="enablePing">Enables the custom ping command sending</param>
             /// <returns><c>RestApiConnectionBuilder</c></returns>
+            public RestApiConnectionBuilder WithWebSocket(string webSocketAddress, string? tokenName = null, IAuthenticationHeader? authentication = null, string pingCommand = "", int pingInterval = 5, bool enablePing = true)
+            {
+                if (!string.IsNullOrEmpty(tokenName) && authentication is not null)
+                    _client.AuthHeaders.Add(tokenName, authentication);
+                _client.EnablePing = enablePing;
+                _client.PingCommand = pingCommand;
+                _client.PingInterval = pingInterval;
+                _client.WebSocketTargetUri = webSocketAddress;
+                return this;
+            }
+            /*
             public RestApiConnectionBuilder WithWebSocket(string webSocketAddress, Dictionary<string, IAuthenticationHeader>? authentication = null, string pingCommand = "", int pingInterval = 0, bool enablePing = true)
             {
                 if (authentication is not null)
@@ -96,6 +109,7 @@ namespace AndreasReitberger.API.REST
                 _client.WebSocketTargetUri = webSocketAddress;
                 return this;
             }
+            */
 
             /// <summary>
             /// Sets the WebSocket address for the connection
@@ -105,9 +119,12 @@ namespace AndreasReitberger.API.REST
             /// <param name="pingInterval">The keep alive interval in seconds. 0 disables it</param>
             /// <param name="enablePing">Enables the custom ping command sending</param>
             /// <returns><c>RestApiConnectionBuilder</c></returns>
+            public RestApiConnectionBuilder WithWebSocket(string webSocketAddress, object pingCommand, string? tokenName = null, IAuthenticationHeader? authentication = null, int pingInterval = 0, bool enablePing = true)
+                => WithWebSocket(webSocketAddress, tokenName, authentication, JsonConvert.SerializeObject(pingCommand), pingInterval, enablePing);
+            /*
             public RestApiConnectionBuilder WithWebSocket(string webSocketAddress, object pingCommand, Dictionary<string, IAuthenticationHeader>? authentication = null, int pingInterval = 0, bool enablePing = true)
                 => WithWebSocket(webSocketAddress, authentication, JsonConvert.SerializeObject(pingCommand), pingInterval, enablePing);
-            
+            */
 
             #endregion
         }

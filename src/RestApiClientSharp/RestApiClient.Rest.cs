@@ -179,6 +179,9 @@ namespace AndreasReitberger.API.REST
                     }
                 }
                 Uri? fullUri = RestClient?.BuildUri(request);
+#if NET6_0_OR_GREATER
+                ArgumentNullException.ThrowIfNull(fullUri, nameof(fullUri));
+#endif
 #if DEBUG
                 Debug.WriteLine($"REST-Request: Uri = '{fullUri}'");
 #endif
