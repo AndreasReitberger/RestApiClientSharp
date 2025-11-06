@@ -58,6 +58,17 @@ namespace AndreasReitberger.API.REST.Interfaces
         public event EventHandler<RestEventArgs>? RestApiAuthenticationError;
         public event EventHandler<RestEventArgs>? RestApiAuthenticationSucceeded;
         public event EventHandler<JsonConvertEventArgs>? RestJsonConvertError;
+
+        public event EventHandler<WebsocketPingSentEventArgs>? WebSocketPingSent;
+        public event EventHandler<WebsocketEventArgs>? WebSocketConnected;
+        public event EventHandler<WebsocketEventArgs>? WebSocketDisconnected;
+        public event EventHandler<WebsocketEventArgs>? WebSocketError;
+        public event EventHandler<WebsocketEventArgs>? WebSocketMessageReceived;
+        public event EventHandler<WebsocketEventArgs>? WebSocketDataReceived;
+
+        public event EventHandler<LoginRequiredEventArgs>? LoginResultReceived;
+        public event EventHandler<ListeningChangedEventArgs>? ListeningChanged;
+        public event EventHandler<SessionChangedEventArgs>? SessionChanged;
         #endregion
 
         #region Methods
@@ -90,7 +101,7 @@ namespace AndreasReitberger.API.REST.Interfaces
         #endregion
 
         #region WebSocket
-        public string BuildPingCommand(object? data);
+        public string BuildPingCommand(object? data = null);
         public Task StartListeningAsync(bool stopActiveListening = false, string[]? commandsOnConnect = null);
         public Task StartListeningAsync(string target, bool stopActiveListening = false, Func<Task>? refreshFunctions = null, string[]? commandsOnConnect = null);
         public Task StopListeningAsync();
@@ -98,9 +109,9 @@ namespace AndreasReitberger.API.REST.Interfaces
         public Task ConnectWebSocketAsync(string target, string[]? commandsOnConnect = null, CookieContainer? cookies = null);
         public Task DisconnectWebSocketAsync();
         public Task SendWebSocketCommandAsync(string command);
-        public Task SendPingAsync();
+        public Task SendPingAsync(object? pingObject = null);
         public Task UpdateWebSocketAsync(Func<Task>? refreshFunctions, string[]? commandsOnConnect = null);
-        public WebsocketClient? GetWebSocketClient(CookieContainer? cookies);
+        public WebsocketClient? GetWebSocketClient(CookieContainer? cookies = null);
         #endregion
 
         #region Misc

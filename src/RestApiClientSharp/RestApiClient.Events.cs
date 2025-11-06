@@ -75,20 +75,26 @@ namespace AndreasReitberger.API.REST
 
         #region WebSocket
 
-        public event EventHandler<RestEventArgs>? WebSocketConnected;
-        protected virtual void OnWebSocketConnected(RestEventArgs e)
+        public event EventHandler<WebsocketPingSentEventArgs>? WebSocketPingSent;
+        protected virtual void OnWebSocketPingSent(WebsocketPingSentEventArgs e)
+        {
+            WebSocketPingSent?.Invoke(this, e);
+        }
+
+        public event EventHandler<WebsocketEventArgs>? WebSocketConnected;
+        protected virtual void OnWebSocketConnected(WebsocketEventArgs e)
         {
             WebSocketConnected?.Invoke(this, e);
         }
 
-        public event EventHandler<RestEventArgs>? WebSocketDisconnected;
-        protected virtual void OnWebSocketDisconnected(RestEventArgs e)
+        public event EventHandler<WebsocketEventArgs>? WebSocketDisconnected;
+        protected virtual void OnWebSocketDisconnected(WebsocketEventArgs e)
         {
             WebSocketDisconnected?.Invoke(this, e);
         }
 
-        public event EventHandler<ErrorEventArgs>? WebSocketError;
-        protected virtual void OnWebSocketError(ErrorEventArgs e)
+        public event EventHandler<WebsocketEventArgs>? WebSocketError;
+        protected virtual void OnWebSocketError(WebsocketEventArgs e)
         {
             WebSocketError?.Invoke(this, e);
         }
@@ -109,6 +115,15 @@ namespace AndreasReitberger.API.REST
         protected virtual void OnLoginResultReceived(LoginRequiredEventArgs e)
         {
             LoginResultReceived?.Invoke(this, e);
+        }
+
+        #endregion
+
+        #region State Changes
+        public event EventHandler<ListeningChangedEventArgs>? ListeningChanged;
+        protected virtual void OnListeningChangedEvent(ListeningChangedEventArgs e)
+        {
+            ListeningChanged?.Invoke(this, e);
         }
 
         public event EventHandler<SessionChangedEventArgs>? SessionChanged;

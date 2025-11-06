@@ -1,8 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using AndreasReitberger.API.REST.Interfaces;
+using Newtonsoft.Json;
 
 namespace AndreasReitberger.API.REST.Events
 {
-    public partial class SessionChangedEventArgs : RestEventArgs
+    public partial class SessionChangedEventArgs : RestEventArgs, ISessionChangedEventArgs
     {
         #region Properties
         public string? Session { get; set; }

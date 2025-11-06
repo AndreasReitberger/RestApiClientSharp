@@ -3,11 +3,11 @@ using Newtonsoft.Json;
 
 namespace AndreasReitberger.API.REST.Events
 {
-    public partial class LoginRequiredEventArgs : RestEventArgs, ILoginRequiredEventArgs
+    public partial class ListeningChangedEventArgs : SessionChangedEventArgs, IListeningChangedEventArgs
     {
         #region Properties
-        public ILoginData? LoginData { get; set; }
-        public bool LoginSucceeded { get; set; } = false;
+        public bool IsListening { get; set; } = false;
+        public bool IsListeningToWebSocket { get; set; } = false;
         #endregion
 
         #region Overrides

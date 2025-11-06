@@ -4,6 +4,7 @@ using AndreasReitberger.API.REST.Interfaces;
 using Newtonsoft.Json;
 using RestApiClientSharp.Test.NUnit.Model;
 using RestSharp;
+using System.Diagnostics;
 
 namespace RestApiClientSharp.Test.NUnit
 {
@@ -99,28 +100,30 @@ namespace RestApiClientSharp.Test.NUnit
         {
             try
             {
-                if (client is null) throw new NullReferenceException($"The client was null!");
-                // Create a new Invoice object
-                client.WebSocketTargetUri = "wss://";
-                client.WebSocketError += (sender, args) =>
+                // https://websocket.org/tools/websocket-echo-server/
+                RestApiClient wsClient = new RestApiClient.RestApiConnectionBuilder()
+                    .WithWebSocket("wss://echo.websocket.org")
+                    .Build() ?? throw new NullReferenceException($"The client was null!");
+
+                wsClient.WebSocketError += (sender, args) =>
                 {
                     Assert.Fail($"WebSocket Error: {args?.ToString()}");
                 };
-                client.WebSocketMessageReceived += (sender, args) =>
+                wsClient.WebSocketMessageReceived += (sender, args) =>
                 {
                    // Handle incoming WebSocket messages here
-                    Console.WriteLine($"WebSocket Message Received: {args?.Message}");
+                    Debug.WriteLine($"WebSocket Message Received: {args?.Message}");
                 };
 
-                await client.ConnectWebSocketAsync(client.WebSocketTargetUri!).ConfigureAwait(false);
-                Assert.That(client.IsListening);
+                await wsClient.ConnectWebSocketAsync(wsClient.WebSocketTargetUri!).ConfigureAwait(false);
+                Assert.That(wsClient.IsListening);
                 CancellationTokenSource cts = new(new TimeSpan(0, 15, 0));
                 while (cts.IsCancellationRequested == false)
                 {
                     // Keep the WebSocket connection alive for 15 minutes
                     await Task.Delay(1000, cts.Token).ConfigureAwait(false);
                 }
-                Assert.That(client.IsListening);
+                Assert.That(wsClient.IsListening);
             }
             catch (Exception ex)
             {

@@ -9,6 +9,9 @@ using Websocket.Client;
 using System.Net.WebSockets;
 using System.Net;
 using System.Threading;
+using System.Linq;
+using AndreasReitberger.API.REST.Enums;
+using System.Collections.Generic;
 #if NETSTANDARD
 using System.Text.RegularExpressions;
 #endif
@@ -30,6 +33,15 @@ namespace AndreasReitberger.API.REST
         [ObservableProperty]
         [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial bool IsListening { get; set; } = false;
+        partial void OnIsListeningChanged(bool value)
+        {
+            OnListeningChangedEvent(new ListeningChangedEventArgs()
+            {
+                SessionId = SessionId,
+                IsListening = value,
+                IsListeningToWebSocket = value,
+            });
+        }
 
         [ObservableProperty]
         [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
@@ -38,17 +50,6 @@ namespace AndreasReitberger.API.REST
         [ObservableProperty]
         public partial int RefreshInterval { get; set; } = 5;
         partial void OnRefreshIntervalChanged(int value)
-        {
-            if (IsListening)
-            {
-                _ = StartListeningAsync(target: WebSocketTargetUri, stopActiveListening: true, refreshFunction: OnRefresh);
-            }
-        }
-
-
-        [ObservableProperty]
-        public partial int KeepAliveInterval { get; set; } = 5;
-        partial void OnKeepAliveIntervalChanged(int value)
         {
             if (IsListening)
             {
@@ -67,6 +68,13 @@ namespace AndreasReitberger.API.REST
         [ObservableProperty]
         [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial int PingInterval { get; set; } = 60;
+        partial void OnPingIntervalChanged(int value)
+        {
+            if (IsListening)
+            {
+                _ = StartListeningAsync(target: WebSocketTargetUri, stopActiveListening: true, refreshFunction: OnRefresh);
+            }
+        }
 
         [ObservableProperty]
         [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
@@ -109,16 +117,26 @@ namespace AndreasReitberger.API.REST
         public virtual WebsocketClient? GetWebSocketClient(CookieContainer? cookies = null)
         {
             if (string.IsNullOrEmpty(WebSocketTargetUri)) return null;
+            string websocketUri = WebSocketTargetUri;
             Func<ClientWebSocket> factory = new(() => new ClientWebSocket
             {
                 Options =
                 {
-                    KeepAliveInterval = KeepAliveInterval > 0 ? TimeSpan.FromSeconds(KeepAliveInterval) : TimeSpan.Zero,
+                    KeepAliveInterval = (PingInterval > 0 && !EnablePing) ? TimeSpan.FromSeconds(PingInterval) : TimeSpan.Zero,
                     Cookies = cookies ?? new(),
                     RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true,
                 },
             });
-            WebsocketClient client = new(new Uri(WebSocketTargetUri), factory)
+            if (AuthHeaders.Where(kp => kp.Value.Type == AuthenticationTypeTarget.WebSocket || kp.Value.Type == AuthenticationTypeTarget.Both) is var headers)
+            {
+                KeyValuePair<string, IAuthenticationHeader> header = headers.FirstOrDefault();
+                if (header.Value.Target == AuthenticationHeaderTarget.UrlSegment)
+                {
+                    Uri wsUri = new(websocketUri);
+                    websocketUri = $"{WebSocketTargetUri}{(!string.IsNullOrEmpty(wsUri.Query) ? "&" : "?")}{header.Key}={header.Value.Token}";
+                }
+            }
+            WebsocketClient client = new(new Uri(websocketUri), factory)
             {
                 ReconnectTimeout = TimeSpan.FromSeconds(15),
                 IsReconnectionEnabled = true,
@@ -137,20 +155,25 @@ namespace AndreasReitberger.API.REST
                     */
                 }
                 if (EnablePing)
-                    Task.Run(async () => await SendPingAsync());
+                    Task.Run(async () => await SendPingAsync().ConfigureAwait(false));
             });
             client.DisconnectionHappened.Subscribe(WebSocket_Closed);
             client.MessageReceived.Subscribe(WebSocket_MessageReceived);
             return client;
         }
 
-        public virtual async Task SendPingAsync()
+        public virtual async Task SendPingAsync(object? pingObject = null)
         {
-            string pingCmd = BuildPingCommand();
+            string pingCmd = BuildPingCommand(pingObject);
 #if DEBUG
-            Debug.WriteLine($"WebSocket: Ping sent '{pingCmd}' at {DateTime.Now}");
+            Debug.WriteLine($"WebSocket: Ping sent '{pingCmd}' at {DateTimeOffset.Now}");
 #endif
-            await SendWebSocketCommandAsync(pingCmd);
+            await SendWebSocketCommandAsync(pingCmd).ConfigureAwait(false);
+            OnWebSocketPingSent(new()
+            {
+                Timestamp = DateTimeOffset.Now,
+                PingCommand = pingCmd,
+            });
         }
 
         public virtual async Task PingingAsync(CancellationTokenSource cts, int interval)
@@ -158,11 +181,11 @@ namespace AndreasReitberger.API.REST
             while (cts.IsCancellationRequested is false && WebSocket?.IsRunning is true)
             {
                 long timestamp = DateTimeOffset.Now.ToUnixTimeSeconds();
-                if (EnablePing && LastPingTimestamp + PingInterval < DateTimeOffset.Now.ToUnixTimeSeconds())
+                if (EnablePing && LastPingTimestamp + PingInterval < timestamp)
                 {
                     PingCounter++;
                     LastPingTimestamp = timestamp;
-                    await SendPingAsync();
+                    await SendPingAsync().ConfigureAwait(false);
                 }
             }
         }
@@ -171,14 +194,21 @@ namespace AndreasReitberger.API.REST
 
         public virtual string BuildPingCommand(object? data = null)
         {
-            data = new
+            if (data is null && !string.IsNullOrEmpty(PingCommand))
             {
-                jsonrpc = "2.0",
-                method = "server.info",
-                @params = new { },
-                id = PingCounter,
-            };
-            return JsonConvert.SerializeObject(data);
+                return PingCommand;
+            }
+            else
+            {
+                data ??= new
+                {
+                    jsonrpc = "2.0",
+                    method = "server.info",
+                    @params = new { },
+                    id = PingCounter,
+                };
+                return JsonConvert.SerializeObject(data);
+            }
         }
 
         public virtual async Task UpdateWebSocketAsync(Func<Task>? refreshFunction = null, string[]? commandsOnConnect = null)
@@ -198,7 +228,7 @@ namespace AndreasReitberger.API.REST
             {
                 if (stopActiveListening)
                 {
-                    await StopListeningAsync();
+                    await StopListeningAsync().ConfigureAwait(false);
                 }
                 else
                 {
@@ -256,49 +286,17 @@ namespace AndreasReitberger.API.REST
 #endif
                     }
                     if (EnablePing)
-                        await SendPingAsync();
+                        await SendPingAsync().ConfigureAwait(false);
                 });
                 if (EnablePing)
                 {
                     CtsPinging?.Cancel();
                     CtsPinging = new();
-                    _ = Task.Run(async () => await PingingAsync(CtsPinging, PingInterval));
+                    _ = Task.Run(async () => await PingingAsync(CtsPinging, PingInterval).ConfigureAwait(false));
                 }
-                /*
-                if (EnablePing)
-                {
-                    await WebSocket.StartOrFail().ContinueWith(t => SendPingAsync());
-                }
-                else
-                {
-                    await WebSocket.StartOrFail().ContinueWith(t =>
-                    {
-                        for (int i = 0; i < commandsOnConnect?.Length; i++)
-                        {
-                            WebSocket.Send(commandsOnConnect[i]);
-#if DEBUG
-                            Debug.WriteLine($"WebSocket: Sent onConnection command '{commandsOnConnect[i]}' at {DateTime.Now}");
-#endif
-                        }
-                    });
-                }
-                */
 #if DEBUG
                 Debug.WriteLine($"WebSocket: Connection established at {DateTime.Now}");
 #endif
-                /*
-                if (EnablePing && commandsOnConnect is not null && WebSocket is not null)
-                {
-                    // Send command
-                    for (int i = 0; i < commandsOnConnect?.Length; i++)
-                    {
-                        WebSocket.Send(commandsOnConnect[i]);
-#if DEBUG
-                        Debug.WriteLine($"WebSocket: Sent onConnection command '{commandsOnConnect[i]}' at {DateTime.Now}");
-#endif
-                    }
-                }
-                */
             }
             catch (Exception exc)
             {
@@ -331,45 +329,38 @@ namespace AndreasReitberger.API.REST
                     return;
                 }
                 long timestamp = DateTimeOffset.Now.ToUnixTimeSeconds();
-                if (EnablePing && LastPingTimestamp + PingInterval < DateTimeOffset.Now.ToUnixTimeSeconds())
+                /* Pinging happens in a separate task now
+                if (EnablePing && (LastPingTimestamp + PingInterval < timestamp))
                 {
                     PingCounter++;
                     LastPingTimestamp = timestamp;
-                    Task.Run(SendPingAsync);
+                    Task.Run(async() => await SendPingAsync().ConfigureAwait(false));
 #if DEBUG
                     Debug.WriteLine($"WebSocket: Ping sent: {DateTime.Now}");
 #endif
                 }
+                */
                 // Handle refreshing more often the pinging
-                if (LastRefreshTimestamp + RefreshInterval < DateTimeOffset.Now.ToUnixTimeSeconds())
+                if (LastRefreshTimestamp + RefreshInterval < timestamp)
                 {
                     LastRefreshTimestamp = timestamp;
-                    Task.Run(async () =>
+                    if (OnRefresh is not null)
                     {
-                        // Check online state on each 5. ping
-                        if (RefreshCounter > 5)
+                        Task.Run(async () =>
                         {
-                            RefreshCounter = 0;
-                            await CheckOnlineAsync(commandBase: ApiTargetPath, authHeaders: AuthHeaders, timeout: 3500).ConfigureAwait(false);
-                        }
-                        else RefreshCounter++;
-                        if (IsOnline)
-                        {
-                            if (OnRefresh is not null)
+                            // Refresh data on each 5. ping
+                            if (RefreshCounter > 5)
                             {
+                                RefreshCounter = 0;
                                 await OnRefresh.Invoke().ConfigureAwait(false);
 #if DEBUG
                                 Debug.WriteLine($"Data refreshed: {DateTime.Now} - On refresh done");
-#endif
+#endif                               
                             }
-                        }
-                        else if (IsListening)
-                        {
-                            await StopListeningAsync().ConfigureAwait(false); // StopListening();
-                        }
-                    });
+                            else RefreshCounter++;
+                        });
+                    }
                 }
-
                 OnWebSocketMessageReceived(new WebsocketEventArgs()
                 {
                     CallbackId = PingCounter,
@@ -399,11 +390,12 @@ namespace AndreasReitberger.API.REST
                 IsListening = false;
                 CtsPinging?.Cancel();
                 //StopPingTimer();
-                OnWebSocketDisconnected(new RestEventArgs()
+                OnWebSocketDisconnected(new()
                 {
+                    Uri = WebSocket?.Url,
                     Message =
-                    $"WebSocket connection to {WebSocket} closed. Connection state while closing was '{(IsOnline ? "online" : "offline")}'" +
-                    $"\n-- Connection closed: {info?.Type} | {info?.CloseStatus} | {info?.CloseStatusDescription}",
+                    $"WebSocket connection to {WebSocket?.Name} closed. Connection state while closing was '{(IsOnline ? "online" : "offline")}'" +
+                    $"\n-- Connection closed: Type = '{info?.Type}' | CloseStatus = '{info?.CloseStatus}' | CloseStatusDescription = '{info?.CloseStatusDescription}'",
                 });
             }
             catch (Exception exc)

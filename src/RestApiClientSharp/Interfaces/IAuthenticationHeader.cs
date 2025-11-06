@@ -9,6 +9,7 @@ namespace AndreasReitberger.API.REST.Interfaces
         public int Order { get; set; }
         public string? Format { get; set; }
         public AuthenticationHeaderTarget Target { get; set; }
+        public AuthenticationTypeTarget Type { get; set; }
         #endregion
 
     }

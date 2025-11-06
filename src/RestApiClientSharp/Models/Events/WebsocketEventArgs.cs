@@ -1,8 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using AndreasReitberger.API.REST.Interfaces;
+using Newtonsoft.Json;
 
 namespace AndreasReitberger.API.REST.Events
 {
-    public partial class WebsocketEventArgs : RestEventArgs
+    public partial class WebsocketEventArgs : RestEventArgs, IWebsocketEventArgs
     {
         #region Properties
         public string? MessageReceived { get; set; }

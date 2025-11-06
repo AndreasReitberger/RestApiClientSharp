@@ -1,8 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using AndreasReitberger.API.REST.Interfaces;
+using Newtonsoft.Json;
 
 namespace AndreasReitberger.API.REST.Events
 {
-    public partial class JsonConvertEventArgs : EventArgs
+    public partial class JsonConvertEventArgs : EventArgs, IJsonConvertEventArgs
     {
         #region Properties
         public string? Message { get; set; }
