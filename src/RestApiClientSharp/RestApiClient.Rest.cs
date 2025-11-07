@@ -129,7 +129,7 @@ namespace AndreasReitberger.API.REST
             RestApiRequestRespone apiRsponeResult = new() { IsOnline = IsOnline };
             try
             {
-                cts ??= new(DefaultTimeout * 1000);
+                cts ??= new(TimeSpan.FromSeconds(DefaultTimeout));
                 requestTargetUri ??= string.Empty;
                 command ??= string.Empty;
                 if (RestClient == null)

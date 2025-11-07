@@ -80,6 +80,7 @@ namespace AndreasReitberger.API.REST
         {
             if (value > 1000)
                 throw new ArgumentOutOfRangeException(nameof(DefaultTimeout), "The property has been changed from ms to seconds! Provide a value less than 1000!");
+            UpdateRestClientInstance();
         }
 
         [ObservableProperty]
@@ -138,16 +139,16 @@ namespace AndreasReitberger.API.REST
         #endregion
 
         #region OnlineCheck
-        public virtual async Task CheckOnlineAsync(int timeout = 10000)
+        public virtual async Task CheckOnlineAsync(int timeout = 10)
         {
-            CancellationTokenSource cts = new(timeout);
+            CancellationTokenSource cts = new(new TimeSpan(0, 0, timeout));
             await CheckOnlineAsync($"{ApiTargetPath}/{ApiVersion}", AuthHeaders, "", cts).ConfigureAwait(false);
             cts?.Dispose();
         }
 
-        public virtual async Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10000)
+        public virtual async Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10)
         {
-            CancellationTokenSource cts = new(timeout);
+            CancellationTokenSource cts = new(new TimeSpan(0, 0, timeout));
             await CheckOnlineAsync(commandBase, authHeaders, command, cts).ConfigureAwait(false);
             cts?.Dispose();
         }
@@ -207,7 +208,7 @@ namespace AndreasReitberger.API.REST
             }
         }
 
-        public virtual async Task<bool> CheckIfApiIsValidAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10000)
+        public virtual async Task<bool> CheckIfApiIsValidAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10)
         {
             try
             {
@@ -218,7 +219,7 @@ namespace AndreasReitberger.API.REST
                         method: Method.Get,
                         command: command,
                         authHeaders: authHeaders,
-                        cts: new(timeout))
+                        cts: new(new TimeSpan(0, 0, timeout)))
                         .ConfigureAwait(false) as RestApiRequestRespone;
                     if (respone?.HasAuthenticationError is true)
                     {
@@ -296,10 +297,8 @@ namespace AndreasReitberger.API.REST
                 return false;
             return Id.Equals(item.Id);
         }
-        public override int GetHashCode()
-        {
-            return Id.GetHashCode();
-        }
+        public override int GetHashCode() => Id.GetHashCode();
+        
         #endregion
 
         #region Dispose
