@@ -111,7 +111,7 @@ namespace AndreasReitberger.API.REST
             RestClientOptions options = new(target)
             {
                 ThrowOnAnyError = false,
-                Timeout = TimeSpan.FromSeconds(DefaultTimeout / 1000),
+                Timeout = TimeSpan.FromSeconds(DefaultTimeout),
                 CookieContainer = new CookieContainer()
             };
             if (EnableProxy && !string.IsNullOrEmpty(ProxyAddress))

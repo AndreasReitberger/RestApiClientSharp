@@ -75,7 +75,12 @@ namespace AndreasReitberger.API.REST
         public partial bool IsAccessTokenValid { get; set; } = false;
 
         [ObservableProperty]
-        public partial int DefaultTimeout { get; set; } = 10000;
+        public partial int DefaultTimeout { get; set; } = 10;
+        partial void OnDefaultTimeoutChanged(int value)
+        {
+            if (value > 1000)
+                throw new ArgumentOutOfRangeException(nameof(DefaultTimeout), "The property has been changed from ms to seconds! Provide a value less than 1000!");
+        }
 
         [ObservableProperty]
         public partial int MinimumCooldown { get; set; } = 0;

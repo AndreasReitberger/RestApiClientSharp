@@ -65,11 +65,11 @@ namespace AndreasReitberger.API.REST
                 return this;
             }
             /// <summary>
-            /// Set the timeout for the connection in ms (default is 10000 ms)
+            /// Set the timeout for the connection in s (default is 10 m)
             /// </summary>
-            /// <param name="timeout">The timeout in ms</param>
+            /// <param name="timeout">The timeout in seconds</param>
             /// <returns><c>RestApiConnectionBuilder</c></returns>
-            public RestApiConnectionBuilder WithTimeout(int timeout = 10000)
+            public RestApiConnectionBuilder WithTimeout(int timeout = 10)
             {
                 _client.DefaultTimeout = timeout;
                 return this;
