@@ -259,7 +259,7 @@ namespace AndreasReitberger.API.REST
             string contentType = "multipart/form-data",
             string fileTargetName = "file",
             string fileContentType = "application/octet-stream",
-            int timeout = 100000
+            int timeout = 100
             )
         {
             RestApiRequestRespone apiRsponeResult = new();
@@ -278,7 +278,7 @@ namespace AndreasReitberger.API.REST
                 {
                     UpdateRestClientInstance();
                 }
-                CancellationTokenSource cts = new(new TimeSpan(0, 0, 0, 0, timeout));
+                CancellationTokenSource cts = new(TimeSpan.FromSeconds(timeout));
                 RestRequest request = new(requestTargetUri);
 
                 if (authHeaders?.Count > 0)
@@ -379,7 +379,7 @@ namespace AndreasReitberger.API.REST
             Dictionary<string, IAuthenticationHeader> authHeaders,
             Dictionary<string, string>? headers = null,
             Dictionary<string, string>? urlSegments = null,
-            int timeout = 10000
+            int timeout = 10
             )
         {
             try
@@ -411,7 +411,7 @@ namespace AndreasReitberger.API.REST
 
                 request.RequestFormat = DataFormat.Json;
                 request.Method = Method.Get;
-                request.Timeout = TimeSpan.FromMilliseconds(timeout);
+                request.Timeout = TimeSpan.FromSeconds(timeout);
                 if (headers?.Count > 0)
                 {
                     foreach (KeyValuePair<string, string> segment in headers)
@@ -430,7 +430,7 @@ namespace AndreasReitberger.API.REST
                 Uri? fullUrl = RestClient?.BuildUri(request);
                 Debug.WriteLine($"REST-Request: Uri = '{fullUrl}'");
 #endif
-                CancellationTokenSource cts = new(timeout);
+                CancellationTokenSource cts = new(TimeSpan.FromSeconds(timeout));
                 if (RestClient is not null)
                 {
                     byte[]? respone = await RestClient.DownloadDataAsync(request, cts.Token)

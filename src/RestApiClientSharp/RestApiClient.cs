@@ -141,14 +141,14 @@ namespace AndreasReitberger.API.REST
         #region OnlineCheck
         public virtual async Task CheckOnlineAsync(int timeout = 10)
         {
-            CancellationTokenSource cts = new(new TimeSpan(0, 0, timeout));
+            CancellationTokenSource cts = new(TimeSpan.FromSeconds(timeout));
             await CheckOnlineAsync($"{ApiTargetPath}/{ApiVersion}", AuthHeaders, "", cts).ConfigureAwait(false);
             cts?.Dispose();
         }
 
         public virtual async Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10)
         {
-            CancellationTokenSource cts = new(new TimeSpan(0, 0, timeout));
+            CancellationTokenSource cts = new(TimeSpan.FromSeconds(timeout));
             await CheckOnlineAsync(commandBase, authHeaders, command, cts).ConfigureAwait(false);
             cts?.Dispose();
         }
@@ -203,7 +203,7 @@ namespace AndreasReitberger.API.REST
             {
                 // Retry with shorter timeout to see if the connection loss is real
                 _retries++;
-                cts = new(3500);
+                cts = new(TimeSpan.FromSeconds(3));
                 await CheckOnlineAsync(commandBase, authHeaders, command, cts).ConfigureAwait(false);
             }
         }
@@ -219,7 +219,7 @@ namespace AndreasReitberger.API.REST
                         method: Method.Get,
                         command: command,
                         authHeaders: authHeaders,
-                        cts: new(new TimeSpan(0, 0, timeout)))
+                        cts: new(TimeSpan.FromSeconds(timeout)))
                         .ConfigureAwait(false) as RestApiRequestRespone;
                     if (respone?.HasAuthenticationError is true)
                     {
@@ -248,15 +248,15 @@ namespace AndreasReitberger.API.REST
         #endregion
 
         #region Misc
-        public virtual void AddOrUpdateAuthHeader(string key, string value, AuthenticationHeaderTarget target, int order = 0)
+        public virtual void AddOrUpdateAuthHeader(string key, string value, AuthenticationHeaderTarget target, int order = 0, AuthenticationTypeTarget type = AuthenticationTypeTarget.Both)
         {
             if (AuthHeaders?.ContainsKey(key) is true)
             {
-                AuthHeaders[key] = new AuthenticationHeader() { Token = value, Order = order, Target = target };
+                AuthHeaders[key] = new AuthenticationHeader() { Token = value, Order = order, Target = target, Type = type };
             }
             else
             {
-                AuthHeaders?.Add(key, new AuthenticationHeader() { Token = value, Order = order, Target = target });
+                AuthHeaders?.Add(key, new AuthenticationHeader() { Token = value, Order = order, Target = target, Type = type });
             }
         }
 
