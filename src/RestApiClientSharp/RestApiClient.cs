@@ -75,7 +75,13 @@ namespace AndreasReitberger.API.REST
         public partial bool IsAccessTokenValid { get; set; } = false;
 
         [ObservableProperty]
-        public partial int DefaultTimeout { get; set; } = 10000;
+        public partial int DefaultTimeout { get; set; } = 10;
+        partial void OnDefaultTimeoutChanged(int value)
+        {
+            if (value > 1000)
+                throw new ArgumentOutOfRangeException(nameof(DefaultTimeout), "The property has been changed from ms to seconds! Provide a value less than 1000!");
+            UpdateRestClientInstance();
+        }
 
         [ObservableProperty]
         public partial int MinimumCooldown { get; set; } = 0;
@@ -133,16 +139,16 @@ namespace AndreasReitberger.API.REST
         #endregion
 
         #region OnlineCheck
-        public virtual async Task CheckOnlineAsync(int timeout = 10000)
+        public virtual async Task CheckOnlineAsync(int timeout = 10)
         {
-            CancellationTokenSource cts = new(timeout);
+            CancellationTokenSource cts = new(TimeSpan.FromSeconds(timeout));
             await CheckOnlineAsync($"{ApiTargetPath}/{ApiVersion}", AuthHeaders, "", cts).ConfigureAwait(false);
             cts?.Dispose();
         }
 
-        public virtual async Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10000)
+        public virtual async Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10)
         {
-            CancellationTokenSource cts = new(timeout);
+            CancellationTokenSource cts = new(TimeSpan.FromSeconds(timeout));
             await CheckOnlineAsync(commandBase, authHeaders, command, cts).ConfigureAwait(false);
             cts?.Dispose();
         }
@@ -197,12 +203,12 @@ namespace AndreasReitberger.API.REST
             {
                 // Retry with shorter timeout to see if the connection loss is real
                 _retries++;
-                cts = new(3500);
+                cts = new(TimeSpan.FromSeconds(3));
                 await CheckOnlineAsync(commandBase, authHeaders, command, cts).ConfigureAwait(false);
             }
         }
 
-        public virtual async Task<bool> CheckIfApiIsValidAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10000)
+        public virtual async Task<bool> CheckIfApiIsValidAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10)
         {
             try
             {
@@ -213,7 +219,7 @@ namespace AndreasReitberger.API.REST
                         method: Method.Get,
                         command: command,
                         authHeaders: authHeaders,
-                        cts: new(timeout))
+                        cts: new(TimeSpan.FromSeconds(timeout)))
                         .ConfigureAwait(false) as RestApiRequestRespone;
                     if (respone?.HasAuthenticationError is true)
                     {
@@ -242,15 +248,15 @@ namespace AndreasReitberger.API.REST
         #endregion
 
         #region Misc
-        public virtual void AddOrUpdateAuthHeader(string key, string value, AuthenticationHeaderTarget target, int order = 0)
+        public virtual void AddOrUpdateAuthHeader(string key, string value, AuthenticationHeaderTarget target, int order = 0, AuthenticationTypeTarget type = AuthenticationTypeTarget.Both)
         {
             if (AuthHeaders?.ContainsKey(key) is true)
             {
-                AuthHeaders[key] = new AuthenticationHeader() { Token = value, Order = order, Target = target };
+                AuthHeaders[key] = new AuthenticationHeader() { Token = value, Order = order, Target = target, Type = type };
             }
             else
             {
-                AuthHeaders?.Add(key, new AuthenticationHeader() { Token = value, Order = order, Target = target });
+                AuthHeaders?.Add(key, new AuthenticationHeader() { Token = value, Order = order, Target = target, Type = type });
             }
         }
 
@@ -291,10 +297,8 @@ namespace AndreasReitberger.API.REST
                 return false;
             return Id.Equals(item.Id);
         }
-        public override int GetHashCode()
-        {
-            return Id.GetHashCode();
-        }
+        public override int GetHashCode() => Id.GetHashCode();
+        
         #endregion
 
         #region Dispose

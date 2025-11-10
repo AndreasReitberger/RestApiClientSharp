@@ -74,10 +74,10 @@ namespace AndreasReitberger.API.REST.Interfaces
         #region Methods
 
         #region OnlineCheck
-        public Task CheckOnlineAsync(int timeout = 10000);
-        public Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10000);
+        public Task CheckOnlineAsync(int timeout = 10);
+        public Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10);
         public Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, CancellationTokenSource? cts = default);
-        public Task<bool> CheckIfApiIsValidAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10000);
+        public Task<bool> CheckIfApiIsValidAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10);
         #endregion
 
         #region Proxy
@@ -95,7 +95,7 @@ namespace AndreasReitberger.API.REST.Interfaces
 
         public Task<IRestApiRequestRespone?> SendMultipartFormDataFileRestApiRequestAsync(string requestTargetUri, Dictionary<string, IAuthenticationHeader> authHeaders, string? fileName, byte[]? file,
             Dictionary<string, string>? parameters = null, string? localFilePath = null,
-            string contentType = "multipart/form-data", string fileTargetName = "file", string fileContentType = "application/octet-stream", int timeout = 100000
+            string contentType = "multipart/form-data", string fileTargetName = "file", string fileContentType = "application/octet-stream", int timeout = 10
             );
 
         #endregion
@@ -118,7 +118,7 @@ namespace AndreasReitberger.API.REST.Interfaces
 
         public void CancelCurrentRequests();
         public IAuthenticationHeader? GetAuthHeader(string key);
-        public void AddOrUpdateAuthHeader(string key, string value, AuthenticationHeaderTarget target, int order = 0);
+        public void AddOrUpdateAuthHeader(string key, string value, AuthenticationHeaderTarget target, int order = 0, AuthenticationTypeTarget type = AuthenticationTypeTarget.Both);
         #endregion
 
         #endregion

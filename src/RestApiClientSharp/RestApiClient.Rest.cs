@@ -129,7 +129,7 @@ namespace AndreasReitberger.API.REST
             RestApiRequestRespone apiRsponeResult = new() { IsOnline = IsOnline };
             try
             {
-                cts ??= new(DefaultTimeout);
+                cts ??= new(TimeSpan.FromSeconds(DefaultTimeout));
                 requestTargetUri ??= string.Empty;
                 command ??= string.Empty;
                 if (RestClient == null)
@@ -259,7 +259,7 @@ namespace AndreasReitberger.API.REST
             string contentType = "multipart/form-data",
             string fileTargetName = "file",
             string fileContentType = "application/octet-stream",
-            int timeout = 100000
+            int timeout = 100
             )
         {
             RestApiRequestRespone apiRsponeResult = new();
@@ -278,7 +278,7 @@ namespace AndreasReitberger.API.REST
                 {
                     UpdateRestClientInstance();
                 }
-                CancellationTokenSource cts = new(new TimeSpan(0, 0, 0, 0, timeout));
+                CancellationTokenSource cts = new(TimeSpan.FromSeconds(timeout));
                 RestRequest request = new(requestTargetUri);
 
                 if (authHeaders?.Count > 0)
@@ -379,7 +379,7 @@ namespace AndreasReitberger.API.REST
             Dictionary<string, IAuthenticationHeader> authHeaders,
             Dictionary<string, string>? headers = null,
             Dictionary<string, string>? urlSegments = null,
-            int timeout = 10000
+            int timeout = 10
             )
         {
             try
@@ -411,7 +411,7 @@ namespace AndreasReitberger.API.REST
 
                 request.RequestFormat = DataFormat.Json;
                 request.Method = Method.Get;
-                request.Timeout = TimeSpan.FromMilliseconds(timeout);
+                request.Timeout = TimeSpan.FromSeconds(timeout);
                 if (headers?.Count > 0)
                 {
                     foreach (KeyValuePair<string, string> segment in headers)
@@ -430,7 +430,7 @@ namespace AndreasReitberger.API.REST
                 Uri? fullUrl = RestClient?.BuildUri(request);
                 Debug.WriteLine($"REST-Request: Uri = '{fullUrl}'");
 #endif
-                CancellationTokenSource cts = new(timeout);
+                CancellationTokenSource cts = new(TimeSpan.FromSeconds(timeout));
                 if (RestClient is not null)
                 {
                     byte[]? respone = await RestClient.DownloadDataAsync(request, cts.Token)
@@ -447,84 +447,7 @@ namespace AndreasReitberger.API.REST
         }
         #endregion
 
-        [Obsolete("Use the functions returning `IRestApiRequestRespone`")]
-        public async Task<T?> SendRestApiRequestAsync<T>(
-            string command, 
-            Method method = Method.Get, 
-            string body = "", 
-            Dictionary<string, string>? headers = null,
-            Dictionary<string, string>? urlSegments = null,
-            CancellationTokenSource? cts = default) where T : class
-        {
-            if (cts == default)
-            {
-                cts = new(DefaultTimeout);
-            }
-            if (RestClient is null)
-            {
-                UpdateRestClientInstance();
-            }
-
-            RestRequest request = new(command, method)
-            {
-                RequestFormat = DataFormat.Json
-            };
-            if (headers is not null)
-            {
-                foreach (KeyValuePair<string, string> item in headers)
-                {
-                    request.AddHeader(item.Key, item.Value);
-                }
-            }
-            if (urlSegments != null)
-            {
-                foreach (KeyValuePair<string, string> pair in urlSegments)
-                {
-                    request.AddParameter(pair.Key, pair.Value, ParameterType.QueryString);
-                }
-            }
-            /*
-            else if (!string.IsNullOrEmpty(AccessToken))
-                request.AddHeader("Authorization", $"Bearer {AccessToken}");
-            */
-            if (!string.IsNullOrEmpty(body))
-            {
-                request.AddJsonBody(body);
-            }
-            if (RestClient is not null)
-            {
-                RestResponse? response = await RestClient.ExecuteAsync(request, cts.Token).ConfigureAwait(false);
-                if ((response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Created) &&
-                    response.ResponseStatus == ResponseStatus.Completed)
-                {
-                    if (typeof(T) == typeof(byte[]))
-                    {
-                        return response.RawBytes as T;
-                    }
-                    else if (typeof(T) == typeof(string))
-                    {
-                        return response.Content as T;
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException($"Unsupported return type: {typeof(T).Name}");
-                    }
-                }
-                else
-                {
-                    string errorMessage = $"Request failed with status code {(int)response.StatusCode} ({response.StatusCode}).";
-
-                    if (!string.IsNullOrEmpty(response.Content))
-                    {
-                        errorMessage += $" Response content: {response.Content}";
-                    }
-                    throw new HttpRequestException(errorMessage);
-                }
-            }
-            return default;
-        }
-
-#endregion
+        #endregion
 
     }
 }
