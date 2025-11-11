@@ -20,6 +20,13 @@ namespace AndreasReitberger.API.REST.Interfaces
         public static IRestApiClient? Instance { get; set; }
         #endregion
 
+        #region General
+        public int DefaultTimeout { get; set; }
+        public int MinimumCooldown { get; set; }
+        public int RetriesWhenOffline { get; set; }
+        public bool UseRateLimiter { get; set; }
+        #endregion
+
         #region Auth
         Dictionary<string, IAuthenticationHeader> AuthHeaders { get; set; }
         public bool AuthenticationFailed { get; set; }
@@ -29,6 +36,7 @@ namespace AndreasReitberger.API.REST.Interfaces
         public bool IsOnline { get; set; }
         public bool IsConnecting { get; set; }
         public bool IsInitialized { get; set; }
+        public bool IsAccessTokenValid { get; set; }
         #endregion
 
         #region Api

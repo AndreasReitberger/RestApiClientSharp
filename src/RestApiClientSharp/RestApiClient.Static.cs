@@ -1,12 +1,7 @@
 ﻿using AndreasReitberger.API.REST.Interfaces;
-using AndreasReitberger.API.REST.Utilities;
-using System.Net;
-using System.Net.Http;
-using Newtonsoft.Json;
 
 namespace AndreasReitberger.API.REST
 {
-    // Documentation: https://finnhub.io/docs/api
     public partial class RestApiClient : ObservableObject, IRestApiClient
     {
         #region Methods
