@@ -134,11 +134,11 @@ namespace RestApiClientSharp.Test.NUnit
                 await wsClient.ConnectWebSocketAsync(wsClient.WebSocketTargetUri!).ConfigureAwait(false);
                 Assert.That(wsClient.IsListening);
                 // Maximum of 10 minutes are allowed by the test server
-                CancellationTokenSource cts = new(new TimeSpan(0, 8, 0));
+                CancellationTokenSource cts = new(new TimeSpan(0, 5, 0));
                 while (cts.IsCancellationRequested == false)
                 {
                     // Keep the WebSocket connection alive for 15 minutes
-                    await Task.Delay(1000, cts.Token).ConfigureAwait(false);
+                    await Task.Delay(1000).ConfigureAwait(false);
                 }
                 Assert.That(wsClient.IsListening);
             }
