@@ -53,6 +53,7 @@ namespace AndreasReitberger.API.REST
             /// <returns><c>RestApiConnectionBuilder</c></returns>
             public RestApiConnectionBuilder WithRateLimiter(bool autoReplenishment, int tokenLimit, int tokensPerPeriod, double replenishmentPeriod, int queueLimit = int.MaxValue)
             {
+                _client.UseRateLimiter = true;
                 _client.Limiter = new TokenBucketRateLimiter(new()
                 {
                     TokenLimit = tokenLimit,

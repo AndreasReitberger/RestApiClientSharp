@@ -52,9 +52,10 @@ namespace AndreasReitberger.API.REST
         [ObservableProperty]
         public partial bool IsInitialized { get; set; } = false;
 
-#endregion
+        #endregion
 
         #region Variables
+        private bool _isDisposed;
         const string defaultApiVersion = "v1";
         #endregion
 
@@ -141,14 +142,14 @@ namespace AndreasReitberger.API.REST
         #region OnlineCheck
         public virtual async Task CheckOnlineAsync(int timeout = 10)
         {
-            CancellationTokenSource cts = new(TimeSpan.FromSeconds(timeout));
+            CancellationTokenSource? cts = new(TimeSpan.FromSeconds(timeout));
             await CheckOnlineAsync($"{ApiTargetPath}/{ApiVersion}", AuthHeaders, "", cts).ConfigureAwait(false);
             cts?.Dispose();
         }
 
         public virtual async Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10)
         {
-            CancellationTokenSource cts = new(TimeSpan.FromSeconds(timeout));
+            CancellationTokenSource? cts = new(TimeSpan.FromSeconds(timeout));
             await CheckOnlineAsync(commandBase, authHeaders, command, cts).ConfigureAwait(false);
             cts?.Dispose();
         }
@@ -160,7 +161,7 @@ namespace AndreasReitberger.API.REST
             bool isReachable = false;
             try
             {
-                string uriString = $"{ApiTargetPath}/{ApiVersion}";
+                //string uriString = $"{ApiTargetPath}/{ApiVersion}";
                 try
                 {
                     // Send a blank api request in order to check if the server is reachable
@@ -182,9 +183,17 @@ namespace AndreasReitberger.API.REST
                 {
                     OnError(new UnhandledExceptionEventArgs(rexc, false));
                 }
-                catch (TaskCanceledException)
+                catch (TaskCanceledException texp)
                 {
                     // Throws an exception on timeout, not actually an error
+                    OnTaskCanceled(new()
+                    {
+                        Message = texp.Message,
+                        Uri = new(commandBase),
+                        Source = nameof(CheckOnlineAsync),
+                        CancelationRequested = cts?.IsCancellationRequested ?? false,
+                        Exception = texp
+                    });
                 }
             }
             catch (Exception exc)
@@ -203,6 +212,7 @@ namespace AndreasReitberger.API.REST
             {
                 // Retry with shorter timeout to see if the connection loss is real
                 _retries++;
+                cts?.Dispose();
                 cts = new(TimeSpan.FromSeconds(3));
                 await CheckOnlineAsync(commandBase, authHeaders, command, cts).ConfigureAwait(false);
             }
@@ -307,14 +317,20 @@ namespace AndreasReitberger.API.REST
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-        protected void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
+            if (_isDisposed)
+                return;
+            _isDisposed = true;
             // Ordinarily, we release unmanaged resources here;
             // but all are wrapped by safe handles.
             // Release disposable objects.
             if (disposing)
             {
-
+                RestClient?.Dispose();
+                RestClient = null;
+                HttpClient?.Dispose();
+                HttpClient = null;
             }
         }
         #endregion

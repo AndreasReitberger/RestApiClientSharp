@@ -1,6 +1,6 @@
 ﻿using AndreasReitberger.API.REST.Events;
 using AndreasReitberger.API.REST.Interfaces;
-using System.IO;
+using System.Threading.Tasks;
 
 namespace AndreasReitberger.API.REST
 {
@@ -52,6 +52,7 @@ namespace AndreasReitberger.API.REST
                 throw e.Exception ?? throw new Exception(e.Message);
             }
         }
+
         public event EventHandler<RestEventArgs>? RestApiAuthenticationSucceeded;
         protected virtual void OnRestApiAuthenticationSucceeded(RestEventArgs e)
         {
@@ -69,6 +70,16 @@ namespace AndreasReitberger.API.REST
             if (ReThrowOnError)
             {
                 throw e.Exception ?? throw new Exception(e.Message);
+            }
+        }
+
+        public event EventHandler<TaskCanceledEventArgs>? TaskCanceled;
+        protected virtual void OnTaskCanceled(TaskCanceledEventArgs e)
+        {
+            TaskCanceled?.Invoke(this, e);
+            if (ReThrowOnError)
+            {
+                throw e.Exception ?? throw new TaskCanceledException(e.Message);
             }
         }
         #endregion

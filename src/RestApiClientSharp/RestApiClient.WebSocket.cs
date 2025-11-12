@@ -130,7 +130,7 @@ namespace AndreasReitberger.API.REST
             if (AuthHeaders.Where(kp => kp.Value.Type == AuthenticationTypeTarget.WebSocket || kp.Value.Type == AuthenticationTypeTarget.Both) is var headers)
             {
                 KeyValuePair<string, IAuthenticationHeader> header = headers.FirstOrDefault();
-                if (header.Value.Target == AuthenticationHeaderTarget.UrlSegment)
+                if (header.Value?.Target == AuthenticationHeaderTarget.UrlSegment)
                 {
                     Uri wsUri = new(websocketUri);
                     websocketUri = $"{WebSocketTargetUri}{(!string.IsNullOrEmpty(wsUri.Query) ? "&" : "?")}{header.Key}={header.Value.Token}";

@@ -1,8 +1,8 @@
 ﻿using AndreasReitberger.API.REST.Interfaces;
 using AndreasReitberger.API.REST.Utilities;
+using Newtonsoft.Json;
 using System.Net;
 using System.Net.Http;
-using Newtonsoft.Json;
 
 namespace AndreasReitberger.API.REST
 {
@@ -112,8 +112,10 @@ namespace AndreasReitberger.API.REST
             {
                 ThrowOnAnyError = false,
                 Timeout = TimeSpan.FromSeconds(DefaultTimeout),
-                CookieContainer = new CookieContainer()
+                CookieContainer = new CookieContainer(),
             };
+            HttpClient?.Dispose();
+            HttpClient = null;
             if (EnableProxy && !string.IsNullOrEmpty(ProxyAddress))
             {
                 HttpClientHandler httpHandler = new()
@@ -122,19 +124,20 @@ namespace AndreasReitberger.API.REST
                     Proxy = GetCurrentProxy(),
                     AllowAutoRedirect = true,
                 };
-
                 HttpClient = new(handler: httpHandler, disposeHandler: true);
             }
             else
             {
                 HttpClient =
 #if !NETFRAMEWORK
-                    new(new RateLimitedHandler(Limiter));
+                    !UseRateLimiter ? new() : new(new RateLimitedHandler(Limiter));
 #else
                     new();
 #endif
             }
-            RestClient = new(httpClient: HttpClient, options: options);
+            RestClient?.Dispose();
+            RestClient = null;
+            RestClient = new(httpClient: HttpClient, disposeHttpClient: false, options: options);
             UpdatingClients = false;
         }
 

@@ -16,7 +16,7 @@ namespace AndreasReitberger.API.REST
         #region Properties
 
         #region Clients
-
+        
         [ObservableProperty]
         [JsonIgnore, XmlIgnore]
         public partial RestClient? RestClient { get; set; }
@@ -24,7 +24,14 @@ namespace AndreasReitberger.API.REST
         [ObservableProperty]
         [JsonIgnore, XmlIgnore]
         public partial HttpClient? HttpClient { get; set; }
+        
+        /*
+        [JsonIgnore, XmlIgnore]
+        protected RestClient? _restClient;
 
+        [JsonIgnore, XmlIgnore]
+        protected HttpClient? _httpClient;
+        */
 #if !NETFRAMEWORK
         [ObservableProperty]
         [JsonIgnore, XmlIgnore]
@@ -45,6 +52,10 @@ namespace AndreasReitberger.API.REST
         public partial RateLimiter? Limiter { get; set; }
         partial void OnLimiterChanged(RateLimiter? value) => UpdateRestClientInstance();
 #endif
+
+        [ObservableProperty]
+        public partial bool UseRateLimiter { get; set; } = false;
+        partial void OnUseRateLimiterChanged(bool value) => UpdateRestClientInstance();
 
         [ObservableProperty]
         public partial bool AuthenticationFailed { get; set; } = false;

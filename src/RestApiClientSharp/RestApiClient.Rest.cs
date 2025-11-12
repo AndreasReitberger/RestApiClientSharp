@@ -211,6 +211,14 @@ namespace AndreasReitberger.API.REST
                 }
                 catch (TaskCanceledException texp)
                 {
+                    OnTaskCanceled(new()
+                    {
+                        Message = texp.Message,
+                        Uri = fullUri,
+                        Source = nameof(CheckOnlineAsync),
+                        CancelationRequested = cts?.IsCancellationRequested ?? false,
+                        Exception = texp
+                    });
                     // Throws exception on timeout, not actually an error but indicates if the server is reachable.
                     if (!IsOnline)
                     {
@@ -240,6 +248,8 @@ namespace AndreasReitberger.API.REST
                         apiRsponeResult.Exception = toexp;
                     }
                 }
+                cts?.Dispose();
+                cts = null;
             }
             catch (Exception exc)
             {
@@ -338,11 +348,20 @@ namespace AndreasReitberger.API.REST
                 }
                 catch (TaskCanceledException texp)
                 {
+                    apiRsponeResult.Exception = texp;
+                    OnTaskCanceled(new()
+                    {
+                        Message = texp.Message,
+                        Uri = fullUrl,
+                        Source = nameof(CheckOnlineAsync),
+                        CancelationRequested = cts?.IsCancellationRequested ?? false,
+                        Exception = texp
+                    });
                     // Throws exception on timeout, not actually an error but indicates if the server is reachable.
                     if (!IsOnline)
                     {
                         OnError(new UnhandledExceptionEventArgs(texp, false));
-                        apiRsponeResult.Exception = texp;
+                        //apiRsponeResult.Exception = texp;
                     }
                 }
                 catch (HttpRequestException hexp)
