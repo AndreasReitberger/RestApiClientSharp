@@ -18,11 +18,11 @@ namespace AndreasReitberger.API.REST
         #region Clients
         
         [ObservableProperty]
-        [JsonIgnore, XmlIgnore]
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial RestClient? RestClient { get; set; }
 
         [ObservableProperty]
-        [JsonIgnore, XmlIgnore]
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial HttpClient? HttpClient { get; set; }
         
         /*
@@ -34,7 +34,7 @@ namespace AndreasReitberger.API.REST
         */
 #if !NETFRAMEWORK
         [ObservableProperty]
-        [JsonIgnore, XmlIgnore]
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial RateLimitedHandler? RateLimitedHandler { get; set; }
 
         public static RateLimiter DefaultLimiter = new TokenBucketRateLimiter(new()
@@ -48,7 +48,7 @@ namespace AndreasReitberger.API.REST
         });
 
         [ObservableProperty]
-        [JsonIgnore, XmlIgnore]
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial RateLimiter? Limiter { get; set; }
         partial void OnLimiterChanged(RateLimiter? value) => UpdateRestClientInstance();
 #endif

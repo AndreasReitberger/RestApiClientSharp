@@ -6,7 +6,6 @@ using System.Net.Http;
 
 namespace AndreasReitberger.API.REST
 {
-    // Documentation: https://finnhub.io/docs/api
     public partial class RestApiClient : ObservableObject, IRestApiClient
     {
         #region Properties
@@ -40,7 +39,7 @@ namespace AndreasReitberger.API.REST
         partial void OnProxyUserChanged(string value) => UpdateRestClientInstance();
 
         [ObservableProperty]
-        [JsonIgnore, XmlIgnore]
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial string? ProxyPassword { get; set; }
         partial void OnProxyPasswordChanged(string? value) => UpdateRestClientInstance();
 
