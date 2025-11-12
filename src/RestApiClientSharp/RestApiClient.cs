@@ -64,15 +64,15 @@ namespace AndreasReitberger.API.REST
         #region General
 
         [ObservableProperty]
-        [JsonIgnore, XmlIgnore]
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial bool IsConnecting { get; set; } = false;
 
         [ObservableProperty]
-        [JsonIgnore, XmlIgnore]
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial bool IsOnline { get; set; } = false;
 
         [ObservableProperty]
-        [JsonIgnore, XmlIgnore]
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial bool IsAccessTokenValid { get; set; } = false;
 
         [ObservableProperty]

@@ -21,7 +21,7 @@ namespace RestApiClientSharp.Test.NUnit
                 .WithWebAddress("https://jsonplaceholder.typicode.com/todos/")
                 .WithVersion("1")
                 .WithApiKey("token", new AuthenticationHeader() { Token = tokenString, Target = AuthenticationHeaderTarget.Header})
-                .WithTimeout(100 * 1000)
+                .WithTimeout(100)
                 .WithRateLimiter(true, tokenLimit: 2, tokensPerPeriod: 2, replenishmentPeriod: 1.5)
                 .Build();
             client.Error += (sender, args) =>
@@ -43,7 +43,7 @@ namespace RestApiClientSharp.Test.NUnit
 
         #region JSON
         [Test]
-        public void TestJsonSerialization()
+        public void TestNewtonsoftJsonSerialization()
         {
             try
             {
@@ -51,7 +51,23 @@ namespace RestApiClientSharp.Test.NUnit
                 Assert.That(!string.IsNullOrEmpty(json));
 
                 RestApiClient? client2 = JsonConvert.DeserializeObject<RestApiClient>(json, settings: RestApiClient.DefaultNewtonsoftJsonSerializerSettings);
-                Assert.That(client2, Is.Not.EqualTo(null));
+                Assert.That(client2, Is.Not.Null);
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(ex.Message);
+            }
+        }
+        [Test]
+        public void TestJsonSerialization()
+        {
+            try
+            {
+                string? json = System.Text.Json.JsonSerializer.Serialize(client, options: RestApiClient.DefaultJsonSerializerSettings);
+                Assert.That(!string.IsNullOrEmpty(json));
+
+                RestApiClient? client2 = System.Text.Json.JsonSerializer.Deserialize<RestApiClient>(json, options: RestApiClient.DefaultJsonSerializerSettings);
+                Assert.That(client2, Is.Not.Null);
             }
             catch (Exception ex)
             {
@@ -85,7 +101,7 @@ namespace RestApiClientSharp.Test.NUnit
                 json = result?.Result;
                 Assert.That(!string.IsNullOrEmpty(json));
                 TestJson? resultObject = client.GetObjectFromJsonSystem<TestJson>(json);
-                Assert.That(resultObject, Is.Not.EqualTo(null));
+                Assert.That(resultObject, Is.Not.Null);
             }
             catch (Exception ex)
             {
@@ -117,7 +133,8 @@ namespace RestApiClientSharp.Test.NUnit
 
                 await wsClient.ConnectWebSocketAsync(wsClient.WebSocketTargetUri!).ConfigureAwait(false);
                 Assert.That(wsClient.IsListening);
-                CancellationTokenSource cts = new(new TimeSpan(0, 15, 0));
+                // Maximum of 10 minutes are allowed by the test server
+                CancellationTokenSource cts = new(new TimeSpan(0, 8, 0));
                 while (cts.IsCancellationRequested == false)
                 {
                     // Keep the WebSocket connection alive for 15 minutes
