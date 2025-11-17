@@ -62,11 +62,9 @@ namespace AndreasReitberger.API.REST
         public partial long LastPingTimestamp { get; set; }
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial bool EnablePing { get; set; } = true;      
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial int PingInterval { get; set; } = 60;
         partial void OnPingIntervalChanged(int value)
         {
@@ -103,7 +101,6 @@ namespace AndreasReitberger.API.REST
         }
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial string WebSocketTargetUri { get; set; } = string.Empty;
 
         #endregion
