@@ -14,13 +14,8 @@ namespace AndreasReitberger.API.REST.Interfaces
 
         #region Properties
 
-        #region Instance
-        public Guid Id { get; set; }
-        public bool UpdateInstance { get; set; }
-        public static IRestApiClient? Instance { get; set; }
-        #endregion
-
         #region General
+        public Guid Id { get; set; }
         public int DefaultTimeout { get; set; }
         public int MinimumCooldown { get; set; }
         public int RetriesWhenOffline { get; set; }

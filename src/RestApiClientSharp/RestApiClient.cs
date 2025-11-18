@@ -12,48 +12,6 @@ namespace AndreasReitberger.API.REST
     public partial class RestApiClient : ObservableObject, IRestApiClient
     {
 
-        #region Instance
-
-        static RestApiClient? _instance = null;
-#if NET9_0_OR_GREATER
-        static readonly Lock Lock = new();
-#else
-        static readonly object Lock = new();
-#endif
-        public static RestApiClient Instance
-        {
-            get
-            {
-                lock (Lock)
-                {
-                    _instance ??= new RestApiClient();
-                }
-                return _instance;
-            }
-            set
-            {
-                if (_instance == value) return;
-                lock (Lock)
-                {
-                    _instance = value;
-                }
-            }
-        }
-
-        [ObservableProperty]
-        public partial Guid Id { get; set; } = Guid.Empty;
-
-        [ObservableProperty]
-        public partial bool IsActive { get; set; } = false;
-
-        [ObservableProperty]
-        public partial bool UpdateInstance { get; set; } = false;
-
-        [ObservableProperty]
-        public partial bool IsInitialized { get; set; } = false;
-
-        #endregion
-
         #region Variables
         private bool _isDisposed;
         const string defaultApiVersion = "v1";
@@ -62,6 +20,15 @@ namespace AndreasReitberger.API.REST
         #region Properties
 
         #region General
+
+        [ObservableProperty]
+        public partial Guid Id { get; set; } = Guid.Empty;
+
+        [ObservableProperty]
+        public partial bool IsActive { get; set; } = false;
+
+        [ObservableProperty]
+        public partial bool IsInitialized { get; set; } = false;
 
         [ObservableProperty]
         [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
@@ -106,14 +73,12 @@ namespace AndreasReitberger.API.REST
             ApiTargetPath = url;
             ApiVersion = version;
             IsInitialized = true;
-            Instance = this;
         }
         public RestApiClient(IAuthenticationHeader authHeader, string tokenName)
         {
             Id = Guid.NewGuid();
             AuthHeaders = new Dictionary<string, IAuthenticationHeader>() { { tokenName, authHeader } };
             IsInitialized = true;
-            Instance = this;
         }
         public RestApiClient(IAuthenticationHeader authHeader, string tokenName, string url, string version = defaultApiVersion)
         {
@@ -122,7 +87,6 @@ namespace AndreasReitberger.API.REST
             ApiTargetPath = url;
             ApiVersion = version;
             IsInitialized = true;
-            Instance = this;
         }
         #endregion
 
