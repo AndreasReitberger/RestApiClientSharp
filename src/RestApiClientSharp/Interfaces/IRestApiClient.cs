@@ -57,6 +57,17 @@ namespace AndreasReitberger.API.REST.Interfaces
 
         #endregion
 
+        #region WebSocket
+        public string PingCommand { get; set; }
+        public long PingCounter { get; set; }
+        public int PingInterval { get; set; }
+        public int OnRefreshInterval { get; set; }
+        public string WebSocketTargetUri { get; set; }
+        public long LastPingTimestamp { get; set; }
+        public long LastRefreshTimestamp { get; set; }
+        public Func<Task>? OnRefresh { get; set; }
+        #endregion
+
         #endregion
 
         #region EventHandlers
