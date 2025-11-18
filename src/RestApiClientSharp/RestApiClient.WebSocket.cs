@@ -103,6 +103,8 @@ namespace AndreasReitberger.API.REST
         [ObservableProperty]
         public partial string WebSocketTargetUri { get; set; } = string.Empty;
 
+        [ObservableProperty]
+        public partial int OnRefreshInterval { get; set; } = 5;
         #endregion
 
         #region Methods
@@ -341,22 +343,24 @@ namespace AndreasReitberger.API.REST
                 if (LastRefreshTimestamp + RefreshInterval < timestamp)
                 {
                     LastRefreshTimestamp = timestamp;
-                    if (OnRefresh is not null)
+                    if (RefreshCounter > OnRefreshInterval)
                     {
-                        Task.Run(async () =>
+                        RefreshCounter = 0;
+                        if (OnRefresh is not null)
                         {
-                            // Refresh data on each 5. ping
-                            if (RefreshCounter > 5)
+                            Task.Run(async () =>
                             {
-                                RefreshCounter = 0;
-                                await OnRefresh.Invoke().ConfigureAwait(false);
+                                if (OnRefresh is not null)
+                                {
+                                    await OnRefresh.Invoke().ConfigureAwait(false);
 #if DEBUG
-                                Debug.WriteLine($"Data refreshed: {DateTime.Now} - On refresh done");
-#endif                               
-                            }
-                            else RefreshCounter++;
-                        });
+                                    Debug.WriteLine($"Data refreshed: {DateTime.Now} - On refresh done");
+#endif
+                                }
+                            });
+                        }
                     }
+                    else RefreshCounter++;
                 }
                 OnWebSocketMessageReceived(new WebsocketEventArgs()
                 {
