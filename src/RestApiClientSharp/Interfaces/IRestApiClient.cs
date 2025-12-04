@@ -1,9 +1,12 @@
 ﻿using AndreasReitberger.API.REST.Enums;
 using AndreasReitberger.API.REST.Events;
+using AndreasReitberger.API.REST.Utilities;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Net;
+using System.Net.Http;
 using System.Threading;
+using System.Threading.RateLimiting;
 using System.Threading.Tasks;
 using Websocket.Client;
 
@@ -19,7 +22,6 @@ namespace AndreasReitberger.API.REST.Interfaces
         public int DefaultTimeout { get; set; }
         public int MinimumCooldown { get; set; }
         public int RetriesWhenOffline { get; set; }
-        public bool UseRateLimiter { get; set; }
         #endregion
 
         #region Auth
@@ -50,6 +52,17 @@ namespace AndreasReitberger.API.REST.Interfaces
         public string ProxyUser { get; set; }
         public string? ProxyPassword { get; set; }
 
+        #endregion
+
+        #region REST
+        public RestClient? RestClient { get; set; }
+        public HttpClient? HttpClient { get; set; }
+        public List<RestHeader> DefaultHeaders { get; set; }
+        public RateLimitedHandler? RateLimitedHandler { get; set; }
+        public static RateLimiter? DefaultLimiter { get; }
+        public RateLimiter? Limiter { get; set; }
+        public bool UpdatingClients { get; set; }
+        public bool UseRateLimiter { get; set; }
         #endregion
 
         #region WebSocket
@@ -104,7 +117,8 @@ namespace AndreasReitberger.API.REST.Interfaces
 
         #region Rest
         public Task<IRestApiRequestRespone?> SendRestApiRequestAsync(string? requestTargetUri, Method method, string? command,
-            Dictionary<string, IAuthenticationHeader> authHeaders, object? jsonObject = null, CancellationTokenSource? cts = default, Dictionary<string, string>? urlSegments = null
+            Dictionary<string, IAuthenticationHeader> authHeaders, object? jsonObject = null, RestBodyTarget target = RestBodyTarget.Json, CancellationTokenSource? cts = default, Dictionary<string, string>? urlSegments = null
+            //string? contentType = null, string? accept = null
             );
 
         public Task<IRestApiRequestRespone?> SendMultipartFormDataFileRestApiRequestAsync(string requestTargetUri, Dictionary<string, IAuthenticationHeader> authHeaders, string? fileName, byte[]? file,

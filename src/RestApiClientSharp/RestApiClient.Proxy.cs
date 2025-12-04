@@ -1,8 +1,6 @@
 ﻿using AndreasReitberger.API.REST.Interfaces;
-using AndreasReitberger.API.REST.Utilities;
 using Newtonsoft.Json;
 using System.Net;
-using System.Net.Http;
 
 namespace AndreasReitberger.API.REST
 {
@@ -91,53 +89,6 @@ namespace AndreasReitberger.API.REST
                 proxy.UseDefaultCredentials = ProxyUseDefaultCredentials;
             }
             return proxy;
-        }
-
-        public virtual void UpdateRestClientInstance()
-        {
-            if (string.IsNullOrEmpty(ApiTargetPath) || ApiVersion is null || UpdatingClients)
-            {
-                return;
-            }
-            UpdatingClients = true;
-#if !NETFRAMEWORK
-            Limiter ??= DefaultLimiter;
-#endif
-            Uri target = new(ApiTargetPath);
-            if (!string.IsNullOrEmpty(ApiVersion))
-                target = new Uri(target, ApiVersion);
-
-            RestClientOptions options = new(target)
-            {
-                ThrowOnAnyError = false,
-                Timeout = TimeSpan.FromSeconds(DefaultTimeout),
-                CookieContainer = new CookieContainer(),
-            };
-            HttpClient?.Dispose();
-            HttpClient = null;
-            if (EnableProxy && !string.IsNullOrEmpty(ProxyAddress))
-            {
-                HttpClientHandler httpHandler = new()
-                {
-                    UseProxy = true,
-                    Proxy = GetCurrentProxy(),
-                    AllowAutoRedirect = true,
-                };
-                HttpClient = new(handler: httpHandler, disposeHandler: true);
-            }
-            else
-            {
-                HttpClient =
-#if !NETFRAMEWORK
-                    !UseRateLimiter ? new() : new(new RateLimitedHandler(Limiter));
-#else
-                    new();
-#endif
-            }
-            RestClient?.Dispose();
-            RestClient = null;
-            RestClient = new(httpClient: HttpClient, disposeHttpClient: false, options: options);
-            UpdatingClients = false;
         }
 
         #endregion

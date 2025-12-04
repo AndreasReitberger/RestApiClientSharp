@@ -1,6 +1,9 @@
-﻿using AndreasReitberger.API.REST.Events;
+﻿using AndreasReitberger.API.REST.Enums;
+using AndreasReitberger.API.REST.Events;
 using AndreasReitberger.API.REST.Interfaces;
+using AndreasReitberger.API.REST.Structs;
 using Newtonsoft.Json;
+using RestSharp;
 using System.Collections.Generic;
 #if DEBUG
 using System.Diagnostics;
@@ -121,7 +124,8 @@ namespace AndreasReitberger.API.REST
             Method method,
             string? command,
             Dictionary<string, IAuthenticationHeader> authHeaders,
-            object? jsonObject = null,
+            object? body = null,
+            RestBodyTarget target = RestBodyTarget.Json,
             CancellationTokenSource? cts = default,
             Dictionary<string, string>? urlSegments = null
             )
@@ -138,17 +142,49 @@ namespace AndreasReitberger.API.REST
                 }
                 RestRequest request = new(!string.IsNullOrEmpty(command) ? $"{requestTargetUri}/{command}" : requestTargetUri)
                 {
-                    RequestFormat = DataFormat.Json,
                     Method = method
                 };
-                if (jsonObject is not null)
+                if (body is not null)
                 {
-                    if (jsonObject is string body)
-                        request.AddJsonBody(body, "application/json");
-                    else
+                    switch (target)
                     {
-                        body = JsonConvert.SerializeObject(jsonObject, DefaultNewtonsoftJsonSerializerSettings);
-                        request.AddJsonBody(body, "application/json");
+                        /*
+                        case RestBodyTarget.File:
+                            if (body is byte[] fileBytes)
+                                request.AddFile("file", fileBytes, "", ContentType.Binary, new FileParameterOptions() {  });
+                            break;
+                        */
+                        case RestBodyTarget.Plain:
+                            request.RequestFormat = DataFormat.None;
+                            if (body is string plainText)
+                                request.AddStringBody(plainText, DataFormat.None);
+                            break;
+                        case RestBodyTarget.Xml:
+                            request.RequestFormat = DataFormat.Xml;
+                            if (body is string xml)
+                                request.AddStringBody(xml, RestContentType.Xml);
+                            else
+                                request.AddXmlBody(body);
+                            break;
+                        case RestBodyTarget.Binary:
+                            if (body is byte[] bytes)
+                            {
+                                request.AddBody(bytes, RestContentType.StreamOctet);
+                            }
+                            break;
+                        case RestBodyTarget.Json:
+                        default:
+                            request.RequestFormat = DataFormat.Json;
+                            if (body is string bodyContent)
+                            {
+                                request.AddJsonBody(bodyContent, RestContentType.Json);
+                            }
+                            else
+                            {
+                                bodyContent = JsonConvert.SerializeObject(body, DefaultNewtonsoftJsonSerializerSettings);
+                                request.AddJsonBody(bodyContent, RestContentType.Json);
+                            }
+                            break;
                     }
                 }
                 if (urlSegments is not null)
@@ -165,10 +201,10 @@ namespace AndreasReitberger.API.REST
                         if (authHeader.Value is null) continue;
                         switch (authHeader.Value.Target)
                         {
-                            case Enums.AuthenticationHeaderTarget.UrlSegment:
+                            case AuthenticationHeaderTarget.UrlSegment:
                                 request.AddParameter(authHeader.Key, authHeader.Value.Token, ParameterType.QueryString);
                                 break;
-                            case Enums.AuthenticationHeaderTarget.Header:
+                            case AuthenticationHeaderTarget.Header:
                             default:
                                 // Examples:
                                 // "X-Api-Key", $"{apiKey}"
@@ -190,9 +226,6 @@ namespace AndreasReitberger.API.REST
                     if (RestClient is not null)
                     {
                         RestResponse? respone = await RestClient.ExecuteAsync(request, cts.Token).ConfigureAwait(false);
-#if DEBUG
-                        //Debug.WriteLine($"REST: Result = '{(respone?.IsSuccessful is true ? "successfully" : "failed")} (Code: {respone?.StatusCode})'\n{respone?.Content}");
-#endif
                         if (ValidateResponse(respone, fullUri) is RestApiRequestRespone res)
                         {
                             apiRsponeResult = res;
@@ -390,7 +423,7 @@ namespace AndreasReitberger.API.REST
             }
             return apiRsponeResult;
         }
-#endregion
+        #endregion
 
         #region Download
         public virtual async Task<byte[]?> DownloadFileFromUriAsync(
@@ -414,10 +447,10 @@ namespace AndreasReitberger.API.REST
                     {
                         switch (authHeader.Value.Target)
                         {
-                            case Enums.AuthenticationHeaderTarget.UrlSegment:
+                            case AuthenticationHeaderTarget.UrlSegment:
                                 request.AddParameter(authHeader.Key, authHeader.Value.Token, ParameterType.QueryString);
                                 break;
-                            case Enums.AuthenticationHeaderTarget.Header:
+                            case AuthenticationHeaderTarget.Header:
                             default:
                                 // Examples:
                                 // "X-Api-Key", $"{apiKey}"
