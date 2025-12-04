@@ -2,6 +2,7 @@
 using AndreasReitberger.API.REST.Events;
 using AndreasReitberger.API.REST.Utilities;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Net;
 using System.Net.Http;
@@ -57,7 +58,7 @@ namespace AndreasReitberger.API.REST.Interfaces
         #region REST
         public RestClient? RestClient { get; set; }
         public HttpClient? HttpClient { get; set; }
-        public List<RestHeader> DefaultHeaders { get; set; }
+        public ObservableCollection<RestHeader> DefaultHeaders { get; set; }
         public RateLimitedHandler? RateLimitedHandler { get; set; }
         public static RateLimiter? DefaultLimiter { get; }
         public RateLimiter? Limiter { get; set; }
