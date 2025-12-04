@@ -3,7 +3,6 @@ using AndreasReitberger.API.REST.Events;
 using AndreasReitberger.API.REST.Interfaces;
 using AndreasReitberger.API.REST.Structs;
 using Newtonsoft.Json;
-using RestSharp;
 using System.Collections.Generic;
 #if DEBUG
 using System.Diagnostics;
@@ -61,13 +60,6 @@ namespace AndreasReitberger.API.REST
                     apiRsponeResult.Result = respone.Content;
                     apiRsponeResult.RawBytes = respone.RawBytes;
                     apiRsponeResult.Succeeded = true;
-                    apiRsponeResult.EventArgs = new RestEventArgs()
-                    {
-                        Status = respone.ResponseStatus.ToString(),
-                        Exception = respone.ErrorException,
-                        Message = respone.ErrorMessage,
-                        Uri = targetUri,
-                    };
                     apiRsponeResult.Cookies = respone.Cookies;
                 }
                 else if (respone.StatusCode == HttpStatusCode.NonAuthoritativeInformation
@@ -78,26 +70,12 @@ namespace AndreasReitberger.API.REST
                     apiRsponeResult.IsOnline = true;
                     apiRsponeResult.HasAuthenticationError = true;
                     apiRsponeResult.Cookies = respone.Cookies;
-                    apiRsponeResult.EventArgs = new RestEventArgs()
-                    {
-                        Status = respone.ResponseStatus.ToString(),
-                        Exception = respone.ErrorException,
-                        Message = respone.ErrorMessage,
-                        Uri = targetUri,
-                    };
                 }
                 else if (respone.StatusCode == HttpStatusCode.Conflict)
                 {
                     apiRsponeResult.IsOnline = true;
                     apiRsponeResult.HasAuthenticationError = false;
                     apiRsponeResult.Cookies = respone.Cookies;
-                    apiRsponeResult.EventArgs = new RestEventArgs()
-                    {
-                        Status = respone.ResponseStatus.ToString(),
-                        Exception = respone.ErrorException,
-                        Message = respone.ErrorMessage,
-                        Uri = targetUri,
-                    };
                 }
                 else
                 {
@@ -109,6 +87,14 @@ namespace AndreasReitberger.API.REST
                         Uri = targetUri,
                     });
                 }
+                // Set event args
+                apiRsponeResult.EventArgs = new RestEventArgs()
+                {
+                    Status = respone.ResponseStatus.ToString(),
+                    Exception = respone.ErrorException,
+                    Message = respone.ErrorMessage,
+                    Uri = targetUri,
+                };
             }
             catch (Exception exc)
             {
@@ -158,6 +144,8 @@ namespace AndreasReitberger.API.REST
                             request.RequestFormat = DataFormat.None;
                             if (body is string plainText)
                                 request.AddStringBody(plainText, DataFormat.None);
+                            else
+                                request.AddBody(body);
                             break;
                         case RestBodyTarget.Xml:
                             request.RequestFormat = DataFormat.Xml;
@@ -168,9 +156,9 @@ namespace AndreasReitberger.API.REST
                             break;
                         case RestBodyTarget.Binary:
                             if (body is byte[] bytes)
-                            {
                                 request.AddBody(bytes, RestContentType.StreamOctet);
-                            }
+                            else
+                                request.AddBody(body);
                             break;
                         case RestBodyTarget.Json:
                         default:
