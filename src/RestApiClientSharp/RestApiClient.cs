@@ -133,7 +133,7 @@ namespace AndreasReitberger.API.REST
                        requestTargetUri: commandBase,
                        method: Method.Get,
                        command: command,
-                       jsonObject: null,
+                       body: null,
                        authHeaders: authHeaders,
                        cts: cts)
                     .ConfigureAwait(false);

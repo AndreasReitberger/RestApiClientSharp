@@ -127,6 +127,11 @@ namespace AndreasReitberger.API.REST
                 => WithWebSocket(webSocketAddress, authentication, JsonConvert.SerializeObject(pingCommand), pingInterval, enablePing);
             */
 
+            public RestApiConnectionBuilder WithDefaultHeaders(params RestHeader[] headers)
+            {
+                _client.DefaultHeaders = [.. headers];
+                return this;
+            }
             #endregion
         }
     }

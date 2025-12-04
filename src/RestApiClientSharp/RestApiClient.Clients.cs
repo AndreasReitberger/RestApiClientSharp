@@ -1,6 +1,8 @@
 ﻿using AndreasReitberger.API.REST.Interfaces;
 using AndreasReitberger.API.REST.Utilities;
 using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Threading.RateLimiting;
 
@@ -70,8 +72,69 @@ namespace AndreasReitberger.API.REST
         [ObservableProperty]
         public partial string ApiVersion { get; set; } = "v1";
         partial void OnApiVersionChanged(string value) => UpdateRestClientInstance();
+
+        [ObservableProperty]
+        public partial List<RestHeader> DefaultHeaders { get; set; } = [];
+        partial void OnDefaultHeadersChanged(List<RestHeader> value) => UpdateRestClientInstance();
         #endregion
 
+        #endregion
+
+        #region Methods
+
+        public virtual void UpdateRestClientInstance()
+        {
+            if (string.IsNullOrEmpty(ApiTargetPath) || ApiVersion is null || UpdatingClients)
+            {
+                return;
+            }
+            UpdatingClients = true;
+#if !NETFRAMEWORK
+            Limiter ??= DefaultLimiter;
+#endif
+            Uri target = new(ApiTargetPath);
+            if (!string.IsNullOrEmpty(ApiVersion))
+                target = new Uri(target, ApiVersion);
+
+            RestClientOptions options = new(target)
+            {
+                ThrowOnAnyError = false,
+                Timeout = TimeSpan.FromSeconds(DefaultTimeout),
+                CookieContainer = new CookieContainer(),
+            };
+            HttpClient?.Dispose();
+            HttpClient = null;
+            if (EnableProxy && !string.IsNullOrEmpty(ProxyAddress))
+            {
+                HttpClientHandler httpHandler = new()
+                {
+                    UseProxy = true,
+                    Proxy = GetCurrentProxy(),
+                    AllowAutoRedirect = true,
+                };
+                HttpClient = new(handler: httpHandler, disposeHandler: true);
+            }
+            else
+            {
+                HttpClient =
+#if !NETFRAMEWORK
+                    !UseRateLimiter ? new() : new(new RateLimitedHandler(Limiter));
+#else
+                    new();
+#endif
+            }
+            RestClient?.Dispose();
+            RestClient = null;
+            RestClient = new(httpClient: HttpClient, disposeHttpClient: false, options: options);
+            if (DefaultHeaders.Count > 0)
+            {
+                foreach (RestHeader header in DefaultHeaders)
+                {
+                    RestClient.AddDefaultHeader(header.Name, header.Value);
+                }
+            }
+            UpdatingClients = false;
+        }
         #endregion
     }
 }
