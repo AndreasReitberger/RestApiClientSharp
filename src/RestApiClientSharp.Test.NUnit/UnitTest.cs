@@ -92,7 +92,7 @@ namespace RestApiClientSharp.Test.NUnit
                         requestTargetUri: targetUri,
                         method: Method.Get,
                         command: "",
-                        jsonObject: null,
+                        body: null,
                         authHeaders: client.AuthHeaders,
                         urlSegments: null,
                         cts: default
@@ -218,7 +218,7 @@ namespace RestApiClientSharp.Test.NUnit
                         requestTargetUri: "https://github.com/AndreasReitberger/LexOfficeClientSharp/-1",
                         method: Method.Get,
                         command: "",
-                        jsonObject: null,
+                        body: null,
                         authHeaders: client.AuthHeaders,
                         urlSegments: null,
                         cts: default
