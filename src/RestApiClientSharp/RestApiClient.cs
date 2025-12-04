@@ -3,6 +3,7 @@ using AndreasReitberger.API.REST.Events;
 using AndreasReitberger.API.REST.Interfaces;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -60,10 +61,11 @@ namespace AndreasReitberger.API.REST
 
         #endregion
 
-        #region Constructor
+        #region Ctor
         public RestApiClient()
         {
             Id = Guid.NewGuid();
+            DefaultHeaders?.CollectionChanged += DefaultHeaders_CollectionChanged;
             IsInitialized = false;
         }
         public RestApiClient(string url, string version = defaultApiVersion)
@@ -72,12 +74,15 @@ namespace AndreasReitberger.API.REST
             AuthHeaders = [];
             ApiTargetPath = url;
             ApiVersion = version;
+            DefaultHeaders?.CollectionChanged += DefaultHeaders_CollectionChanged;
             IsInitialized = true;
         }
+
         public RestApiClient(IAuthenticationHeader authHeader, string tokenName)
         {
             Id = Guid.NewGuid();
             AuthHeaders = new Dictionary<string, IAuthenticationHeader>() { { tokenName, authHeader } };
+            DefaultHeaders?.CollectionChanged += DefaultHeaders_CollectionChanged;
             IsInitialized = true;
         }
         public RestApiClient(IAuthenticationHeader authHeader, string tokenName, string url, string version = defaultApiVersion)
@@ -86,7 +91,18 @@ namespace AndreasReitberger.API.REST
             AuthHeaders = new Dictionary<string, IAuthenticationHeader>() { { tokenName, authHeader } };
             ApiTargetPath = url;
             ApiVersion = version;
+            DefaultHeaders?.CollectionChanged += DefaultHeaders_CollectionChanged;
             IsInitialized = true;
+        }
+
+        private void DefaultHeaders_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) => UpdateRestClientInstance();
+        #endregion
+
+        #region Dtor
+        ~RestApiClient()
+        {
+            DefaultHeaders?.CollectionChanged -= DefaultHeaders_CollectionChanged;
+            Dispose();
         }
         #endregion
 

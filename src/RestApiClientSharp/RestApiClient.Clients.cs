@@ -2,6 +2,7 @@
 using AndreasReitberger.API.REST.Utilities;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Net;
 using System.Net.Http;
 using System.Threading.RateLimiting;
@@ -74,8 +75,13 @@ namespace AndreasReitberger.API.REST
         partial void OnApiVersionChanged(string value) => UpdateRestClientInstance();
 
         [ObservableProperty]
-        public partial List<RestHeader> DefaultHeaders { get; set; } = [];
-        partial void OnDefaultHeadersChanged(List<RestHeader> value) => UpdateRestClientInstance();
+        public partial ObservableCollection<RestHeader> DefaultHeaders { get; set; } = [];
+        partial void OnDefaultHeadersChanged(ObservableCollection<RestHeader> value)
+        {
+            DefaultHeaders?.CollectionChanged -= DefaultHeaders_CollectionChanged;
+            DefaultHeaders?.CollectionChanged += DefaultHeaders_CollectionChanged;
+            UpdateRestClientInstance();
+        }
         #endregion
 
         #endregion
