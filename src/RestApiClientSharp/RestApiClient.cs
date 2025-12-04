@@ -29,9 +29,6 @@ namespace AndreasReitberger.API.REST
         public partial bool IsActive { get; set; } = false;
 
         [ObservableProperty]
-        public partial bool IsInitialized { get; set; } = false;
-
-        [ObservableProperty]
         [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial bool IsConnecting { get; set; } = false;
 
@@ -66,7 +63,6 @@ namespace AndreasReitberger.API.REST
         {
             Id = Guid.NewGuid();
             DefaultHeaders?.CollectionChanged += DefaultHeaders_CollectionChanged;
-            IsInitialized = false;
         }
         public RestApiClient(string url, string version = defaultApiVersion)
         {
@@ -75,7 +71,6 @@ namespace AndreasReitberger.API.REST
             ApiTargetPath = url;
             ApiVersion = version;
             DefaultHeaders?.CollectionChanged += DefaultHeaders_CollectionChanged;
-            IsInitialized = true;
         }
 
         public RestApiClient(IAuthenticationHeader authHeader, string tokenName)
@@ -83,7 +78,6 @@ namespace AndreasReitberger.API.REST
             Id = Guid.NewGuid();
             AuthHeaders = new Dictionary<string, IAuthenticationHeader>() { { tokenName, authHeader } };
             DefaultHeaders?.CollectionChanged += DefaultHeaders_CollectionChanged;
-            IsInitialized = true;
         }
         public RestApiClient(IAuthenticationHeader authHeader, string tokenName, string url, string version = defaultApiVersion)
         {
@@ -92,7 +86,6 @@ namespace AndreasReitberger.API.REST
             ApiTargetPath = url;
             ApiVersion = version;
             DefaultHeaders?.CollectionChanged += DefaultHeaders_CollectionChanged;
-            IsInitialized = true;
         }
 
         private void DefaultHeaders_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) => UpdateRestClientInstance();
@@ -115,7 +108,6 @@ namespace AndreasReitberger.API.REST
             {
                 AuthHeaders[tokenName] = authenticationHeader;
             }
-            IsInitialized = true;
         }
         #endregion
 
