@@ -212,7 +212,7 @@ namespace AndreasReitberger.API.REST
 
         public virtual async Task UpdateWebSocketAsync(Func<Task>? refreshFunction = null, string[]? commandsOnConnect = null)
         {
-            if (!string.IsNullOrEmpty(WebSocketTargetUri) && IsInitialized)
+            if (!string.IsNullOrEmpty(WebSocketTargetUri))
             {
                 await StartListeningAsync(target: WebSocketTargetUri, stopActiveListening: true, refreshFunction: refreshFunction, commandsOnConnect: commandsOnConnect)
                     .ConfigureAwait(false);

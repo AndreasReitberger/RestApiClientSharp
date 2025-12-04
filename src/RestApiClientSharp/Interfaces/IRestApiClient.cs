@@ -33,7 +33,6 @@ namespace AndreasReitberger.API.REST.Interfaces
         #region States
         public bool IsOnline { get; set; }
         public bool IsConnecting { get; set; }
-        public bool IsInitialized { get; set; }
         public bool IsAccessTokenValid { get; set; }
         #endregion
 
