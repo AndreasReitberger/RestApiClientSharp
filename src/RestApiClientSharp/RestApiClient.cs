@@ -29,15 +29,15 @@ namespace AndreasReitberger.API.REST
         public partial bool IsActive { get; set; } = false;
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial bool IsConnecting { get; set; } = false;
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial bool IsOnline { get; set; } = false;
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial bool IsAccessTokenValid { get; set; } = false;
 
         [ObservableProperty]

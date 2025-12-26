@@ -1,6 +1,5 @@
 ﻿using AndreasReitberger.API.REST.Events;
 using AndreasReitberger.API.REST.Interfaces;
-using Newtonsoft.Json;
 #if DEBUG
 using System.Diagnostics;
 #endif
@@ -23,15 +22,15 @@ namespace AndreasReitberger.API.REST
 
         #region Properties
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial WebsocketClient? WebSocket { get; set; }
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial CancellationTokenSource? CtsPinging { get; set; }
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial bool IsListening { get; set; } = false;
         partial void OnIsListeningChanged(bool value)
         {
@@ -44,7 +43,7 @@ namespace AndreasReitberger.API.REST
         }
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial Func<Task>? OnRefresh { get; set; }
 
         [ObservableProperty]
@@ -58,7 +57,7 @@ namespace AndreasReitberger.API.REST
         }
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial long LastPingTimestamp { get; set; }
 
         [ObservableProperty]
@@ -75,15 +74,15 @@ namespace AndreasReitberger.API.REST
         }
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial long PingCounter { get; set; } = 0;
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial long LastRefreshTimestamp { get; set; }
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial int RefreshCounter { get; set; } = 0;
 
         [ObservableProperty]
@@ -206,7 +205,8 @@ namespace AndreasReitberger.API.REST
                     @params = new { },
                     id = PingCounter,
                 };
-                return JsonConvert.SerializeObject(data);
+                //return Newtonsoft.Json.JsonConvert.SerializeObject(data);
+                return JsonSerializer.Serialize(data, data.GetType(), RestSourceGenerationContext.Default);
             }
         }
 

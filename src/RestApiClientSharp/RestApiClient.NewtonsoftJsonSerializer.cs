@@ -6,11 +6,10 @@ using Newtonsoft.Json.Serialization;
 
 namespace AndreasReitberger.API.REST
 {
-    // Documentation: https://finnhub.io/docs/api
     public partial class RestApiClient : ObservableObject, IRestApiClient
     {
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial JsonSerializerSettings NewtonsoftJsonSerializerSettings { get; set; } = DefaultNewtonsoftJsonSerializerSettings;
 #if DEBUG
         #region Debug

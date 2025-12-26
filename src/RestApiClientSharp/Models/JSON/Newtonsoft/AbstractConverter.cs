@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿
 
 namespace AndreasReitberger.API.REST.JSON.Newtonsoft
 {
@@ -15,10 +15,10 @@ namespace AndreasReitberger.API.REST.JSON.Newtonsoft
         public override bool CanConvert(Type objectType)
             => objectType == typeof(TAbstract);
 
-        public override object? ReadJson(JsonReader reader, Type type, object? value, JsonSerializer jser)
+        public override object? ReadJson(Newtonsoft.Json.JsonReader reader, Type type, object? value, Newtonsoft.Json.JsonSerializer jser)
             => jser.Deserialize<TReal>(reader);
 
-        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer jser)
+        public override void WriteJson(Newtonsoft.Json.JsonWriter writer, object? value, Newtonsoft.Json.JsonSerializer jser)
             => jser.Serialize(writer, value);
     }
 }

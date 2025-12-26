@@ -1,6 +1,5 @@
 ﻿using AndreasReitberger.API.REST.Enums;
 using AndreasReitberger.API.REST.Interfaces;
-using Newtonsoft.Json;
 
 namespace AndreasReitberger.API.REST
 {
@@ -24,7 +23,8 @@ namespace AndreasReitberger.API.REST
         #endregion
 
         #region Overrides
-        public override string ToString() => JsonConvert.SerializeObject(this, Formatting.Indented);
+
+        public override string ToString() => JsonSerializer.Serialize(this!, RestSourceGenerationContext.Default.AuthenticationHeader);
 
         #endregion
     }
