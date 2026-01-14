@@ -25,6 +25,7 @@ namespace AndreasReitberger.API.REST
         public partial IRestEventArgs? EventArgs { get; set; }
 
         [ObservableProperty]
+        [JsonIgnore, Newtonsoft.Json.JsonIgnore]
         public partial Exception? Exception { get; set; }
 
         [ObservableProperty]

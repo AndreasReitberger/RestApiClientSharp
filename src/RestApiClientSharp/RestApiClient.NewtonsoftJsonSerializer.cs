@@ -3,7 +3,9 @@ using AndreasReitberger.API.REST.Interfaces;
 using AndreasReitberger.API.REST.JSON.Newtonsoft;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+#if NET5_0_OR_GREATER
 using System.Diagnostics.CodeAnalysis;
+#endif
 
 namespace AndreasReitberger.API.REST
 {

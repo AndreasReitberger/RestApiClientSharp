@@ -14,7 +14,7 @@ namespace AndreasReitberger.API.REST
 
         #region Ctor
         public RestHeader() { }
-        public RestHeader(string name, string value)
+        public RestHeader(string name, string value) : this()
         {
             Name = name;
             Value = value;

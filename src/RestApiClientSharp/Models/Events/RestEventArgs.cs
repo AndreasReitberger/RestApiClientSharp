@@ -11,6 +11,7 @@ namespace AndreasReitberger.API.REST.Events
         public long CallbackId { get; set; }
         public string? SessionId { get; set; }
         public string? AuthToken { get; set; }
+        [JsonIgnore, Newtonsoft.Json.JsonIgnore]
         public Exception? Exception { get; set; }
         #endregion
 
