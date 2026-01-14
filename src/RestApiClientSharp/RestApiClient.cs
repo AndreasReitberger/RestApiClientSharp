@@ -1,7 +1,6 @@
 ﻿using AndreasReitberger.API.REST.Enums;
 using AndreasReitberger.API.REST.Events;
 using AndreasReitberger.API.REST.Interfaces;
-using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Net.Http;
@@ -271,7 +270,7 @@ namespace AndreasReitberger.API.REST
         #endregion
 
         #region Overrides
-        public override string ToString() => JsonConvert.SerializeObject(this, Formatting.Indented);
+        public override string ToString() => JsonSerializer.Serialize(this!, RestSourceGenerationContext.Default.RestApiClient);
 
         public override bool Equals(object? obj)
         {

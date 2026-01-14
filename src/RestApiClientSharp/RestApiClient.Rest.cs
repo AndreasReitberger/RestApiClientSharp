@@ -2,7 +2,6 @@
 using AndreasReitberger.API.REST.Events;
 using AndreasReitberger.API.REST.Interfaces;
 using AndreasReitberger.API.REST.Structs;
-using Newtonsoft.Json;
 using System.Collections.Generic;
 #if DEBUG
 using System.Diagnostics;
@@ -34,7 +33,7 @@ namespace AndreasReitberger.API.REST
             {
                 if ((string.IsNullOrEmpty(result) || result == "{}") && emptyResultIsValid)
                     return true;
-                return GetObjectFromJson<QueryActionResult>(result)?.Ok ?? false;
+                return GetObjectFromJsonSystem<QueryActionResult>(result)?.Ok ?? false;
             }
             catch (Exception exc)
             {
@@ -169,7 +168,8 @@ namespace AndreasReitberger.API.REST
                             }
                             else
                             {
-                                bodyContent = JsonConvert.SerializeObject(body, DefaultNewtonsoftJsonSerializerSettings);
+                                //bodyContent = JsonConvert.SerializeObject(body, DefaultNewtonsoftJsonSerializerSettings);
+                                bodyContent = JsonSerializer.Serialize(body!, body.GetType(), RestSourceGenerationContext.Default);
                                 request.AddJsonBody(bodyContent, RestContentType.Json);
                             }
                             break;
