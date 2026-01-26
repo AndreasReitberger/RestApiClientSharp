@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+#if NET5_0_OR_GREATER
+using System.Text.Json.Serialization.Metadata;
+#endif
 
 namespace AndreasReitberger.API.REST.JSON.System
 {
@@ -11,15 +12,43 @@ namespace AndreasReitberger.API.REST.JSON.System
     /// </summary>
     /// <typeparam name="TType"></typeparam>
     /// <typeparam name="TImplementation"></typeparam>
-    public class TypeMappingConverter<TType, TImplementation> : JsonConverter<TType> where TImplementation : TType
+
+    public sealed class TypeMappingConverter<
+#if NET5_0_OR_GREATER
+        [DynamicallyAccessedMembers(
+            DynamicallyAccessedMemberTypes.PublicParameterlessConstructor |
+            DynamicallyAccessedMemberTypes.PublicProperties)]
+#endif
+            TType, TImplementation
+            >
+     : JsonConverter<TType> where TImplementation : TType
     {
         [return: MaybeNull]
+#if NET5_0_OR_GREATER
+        public override TType Read(
+          ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            JsonTypeInfo<TImplementation> typeInfo = (JsonTypeInfo<TImplementation>)options.GetTypeInfo(typeof(TImplementation));
+            return JsonSerializer.Deserialize<TImplementation>(ref reader, typeInfo);
+        }
+#else
         public override TType Read(
           ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
             JsonSerializer.Deserialize<TImplementation>(ref reader, options);
+#endif
 
+#if NET5_0_OR_GREATER
+        public override void Write(
+          Utf8JsonWriter writer, TType value, JsonSerializerOptions options)
+        {
+            JsonTypeInfo<TImplementation> typeInfo = (JsonTypeInfo<TImplementation>)options.GetTypeInfo(typeof(TImplementation));
+            JsonSerializer.Serialize(writer, (TImplementation)value!, typeInfo);
+        }
+#else
         public override void Write(
           Utf8JsonWriter writer, TType value, JsonSerializerOptions options) =>
             JsonSerializer.Serialize(writer, (TImplementation)value!, options);
+#endif
+
     }
 }

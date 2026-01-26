@@ -1,5 +1,5 @@
 ﻿using AndreasReitberger.API.REST.Interfaces;
-using Newtonsoft.Json;
+using AndreasReitberger.Shared.Core.Models.DTO;
 
 namespace AndreasReitberger.API.REST.Events
 {
@@ -12,11 +12,13 @@ namespace AndreasReitberger.API.REST.Events
         public long CallbackId { get; set; }
         public string? SessionId { get; set; }
         public string? AuthToken { get; set; }
-        public Exception? Exception { get; set; }
+        public string? ErrorMessage { get; set; }
+        public string? StackTrace { get; set; }
+        public ErrorDto? Error { get; set; }
         #endregion
 
         #region Overrides
-        public override string ToString() => JsonConvert.SerializeObject(this, Formatting.Indented);
+        public override string ToString() => JsonSerializer.Serialize(this!, RestSourceGenerationContext.Default.RestEventArgs);
         #endregion
     }
 }

@@ -1,5 +1,4 @@
 ﻿using AndreasReitberger.API.REST.Interfaces;
-using Newtonsoft.Json;
 
 namespace AndreasReitberger.API.REST.Events
 {
@@ -9,11 +8,13 @@ namespace AndreasReitberger.API.REST.Events
         public string? Message { get; set; }
         public string? OriginalString { get; set; }
         public string? TargetType { get; set; }
+
+        [JsonIgnore, Newtonsoft.Json.JsonIgnore]
         public Exception? Exception { get; set; }
         #endregion
 
         #region Overrides
-        public override string ToString() => JsonConvert.SerializeObject(this, Formatting.Indented);
+        public override string ToString() => JsonSerializer.Serialize(this!, RestSourceGenerationContext.Default.JsonConvertEventArgs);
         #endregion
     }
 }

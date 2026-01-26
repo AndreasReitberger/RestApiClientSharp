@@ -37,7 +37,7 @@ namespace AndreasReitberger.API.REST
         partial void OnProxyUserChanged(string value) => UpdateRestClientInstance();
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial string? ProxyPassword { get; set; }
         partial void OnProxyPasswordChanged(string? value) => UpdateRestClientInstance();
 

@@ -1,7 +1,7 @@
 ﻿using AndreasReitberger.API.REST.Enums;
 using AndreasReitberger.API.REST.Events;
 using AndreasReitberger.API.REST.Interfaces;
-using Newtonsoft.Json;
+using AndreasReitberger.Shared.Core.Utilities;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Net.Http;
@@ -29,15 +29,15 @@ namespace AndreasReitberger.API.REST
         public partial bool IsActive { get; set; } = false;
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial bool IsConnecting { get; set; } = false;
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial bool IsOnline { get; set; } = false;
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial bool IsAccessTokenValid { get; set; } = false;
 
         [ObservableProperty]
@@ -164,7 +164,9 @@ namespace AndreasReitberger.API.REST
                         Uri = new(commandBase),
                         Source = nameof(CheckOnlineAsync),
                         CancelationRequested = cts?.IsCancellationRequested ?? false,
-                        Exception = texp
+                        ErrorMessage = texp.Message,
+                        StackTrace = texp.StackTrace,
+                        Error = DtoMapper.FromException(texp),
                     });
                 }
             }
@@ -271,7 +273,7 @@ namespace AndreasReitberger.API.REST
         #endregion
 
         #region Overrides
-        public override string ToString() => JsonConvert.SerializeObject(this, Formatting.Indented);
+        public override string ToString() => JsonSerializer.Serialize(this!, RestSourceGenerationContext.Default.RestApiClient);
 
         public override bool Equals(object? obj)
         {

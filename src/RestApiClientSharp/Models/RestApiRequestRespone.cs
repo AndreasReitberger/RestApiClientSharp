@@ -1,5 +1,4 @@
 ﻿using AndreasReitberger.API.REST.Interfaces;
-using Newtonsoft.Json;
 using System.Net;
 
 namespace AndreasReitberger.API.REST
@@ -26,6 +25,7 @@ namespace AndreasReitberger.API.REST
         public partial IRestEventArgs? EventArgs { get; set; }
 
         [ObservableProperty]
+        [JsonIgnore, Newtonsoft.Json.JsonIgnore]
         public partial Exception? Exception { get; set; }
 
         [ObservableProperty]
@@ -33,7 +33,7 @@ namespace AndreasReitberger.API.REST
         #endregion
 
         #region Overrides
-        public override string ToString() => JsonConvert.SerializeObject(this, Formatting.Indented);
+        public override string ToString() => JsonSerializer.Serialize(this!, RestSourceGenerationContext.Default.RestApiRequestRespone);
 
         #endregion
     }

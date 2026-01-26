@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using JsonConverter = Newtonsoft.Json.JsonConverter;
+using JsonSerializer = Newtonsoft.Json.JsonSerializer;
 
 namespace AndreasReitberger.API.REST.JSON.Newtonsoft
 {
