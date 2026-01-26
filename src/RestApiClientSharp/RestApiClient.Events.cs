@@ -39,7 +39,7 @@ namespace AndreasReitberger.API.REST
             RestApiError?.Invoke(this, e);
             if (ReThrowOnError)
             {
-                throw e.Exception ?? throw new Exception(e.Message);
+                throw new Exception(e.Message);
             }
         }
 
@@ -49,7 +49,7 @@ namespace AndreasReitberger.API.REST
             RestApiAuthenticationError?.Invoke(this, e);
             if (ReThrowOnError)
             {
-                throw e.Exception ?? throw new Exception(e.Message);
+                throw new Exception(e.Message);
             }
         }
 
@@ -59,7 +59,7 @@ namespace AndreasReitberger.API.REST
             RestApiAuthenticationSucceeded?.Invoke(this, e);
             if (ReThrowOnError)
             {
-                throw e.Exception ?? throw new Exception(e.Message);
+                throw new Exception(e.Message);
             }
         }
 
@@ -79,7 +79,7 @@ namespace AndreasReitberger.API.REST
             TaskCanceled?.Invoke(this, e);
             if (ReThrowOnError)
             {
-                throw e.Exception ?? throw new TaskCanceledException(e.Message);
+                throw new TaskCanceledException(e.Message);
             }
         }
         #endregion

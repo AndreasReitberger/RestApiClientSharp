@@ -1,6 +1,7 @@
 ﻿using AndreasReitberger.API.REST.Enums;
 using AndreasReitberger.API.REST.Events;
 using AndreasReitberger.API.REST.Interfaces;
+using AndreasReitberger.Shared.Core.Utilities;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Net.Http;
@@ -163,7 +164,9 @@ namespace AndreasReitberger.API.REST
                         Uri = new(commandBase),
                         Source = nameof(CheckOnlineAsync),
                         CancelationRequested = cts?.IsCancellationRequested ?? false,
-                        Exception = texp
+                        ErrorMessage = texp.Message,
+                        StackTrace = texp.StackTrace,
+                        Error = DtoMapper.FromException(texp),
                     });
                 }
             }

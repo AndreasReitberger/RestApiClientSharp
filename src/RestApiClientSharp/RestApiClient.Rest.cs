@@ -2,6 +2,7 @@
 using AndreasReitberger.API.REST.Events;
 using AndreasReitberger.API.REST.Interfaces;
 using AndreasReitberger.API.REST.Structs;
+using AndreasReitberger.Shared.Core.Utilities;
 using System.Collections.Generic;
 #if DEBUG
 using System.Diagnostics;
@@ -10,6 +11,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace AndreasReitberger.API.REST
 {
@@ -81,18 +83,22 @@ namespace AndreasReitberger.API.REST
                     OnRestApiError(new RestEventArgs()
                     {
                         Status = respone.ResponseStatus.ToString(),
-                        Exception = respone.ErrorException,
+                        ErrorMessage = respone.ErrorException?.Message,
+                        StackTrace = respone.ErrorException?.StackTrace,
                         Message = respone.Content ?? respone.ErrorMessage,
                         Uri = targetUri,
+                        Error = DtoMapper.FromException(respone.ErrorException),
                     });
                 }
                 // Set event args
                 apiRsponeResult.EventArgs = new RestEventArgs()
                 {
                     Status = respone.ResponseStatus.ToString(),
-                    Exception = respone.ErrorException,
+                    ErrorMessage = respone.ErrorException?.Message,
+                    StackTrace = respone.ErrorException?.StackTrace,
                     Message = respone.Content,
                     Uri = targetUri,
+                    Error = DtoMapper.FromException(respone.ErrorException),
                 };
             }
             catch (Exception exc)
@@ -221,10 +227,12 @@ namespace AndreasReitberger.API.REST
                             {
                                 OnRestApiError(new()
                                 {
-                                    Exception = apiRsponeResult.EventArgs.Exception,
+                                    ErrorMessage = apiRsponeResult.EventArgs.ErrorMessage,
+                                    StackTrace = apiRsponeResult.EventArgs.StackTrace,
                                     Message = apiRsponeResult.EventArgs.Message,
                                     Status = apiRsponeResult.EventArgs.Status,
                                     Uri = apiRsponeResult.EventArgs.Uri,
+                                    Error = apiRsponeResult.EventArgs.Error,
                                 });
                             }
                         }
@@ -238,7 +246,9 @@ namespace AndreasReitberger.API.REST
                         Uri = fullUri,
                         Source = nameof(CheckOnlineAsync),
                         CancelationRequested = cts?.IsCancellationRequested ?? false,
-                        Exception = texp
+                        ErrorMessage = texp.Message,
+                        StackTrace = texp.StackTrace,
+                        Error = DtoMapper.FromException(texp),
                     });
                     // Throws exception on timeout, not actually an error but indicates if the server is reachable.
                     if (!IsOnline)
@@ -251,12 +261,14 @@ namespace AndreasReitberger.API.REST
                 {
                     OnRestApiError(new()
                     {
-                        Exception = hexp,
+                        ErrorMessage = hexp.Message,
+                        StackTrace = hexp.StackTrace,
                         Message = hexp.Message,
 #if NET6_0_OR_GREATER
                         Status = hexp.StatusCode.ToString(),
 #endif
                         Uri = fullUri,
+                        Error = DtoMapper.FromException(hexp),
                     });
                     apiRsponeResult.Exception = hexp;                  
                 }
@@ -376,7 +388,9 @@ namespace AndreasReitberger.API.REST
                         Uri = fullUrl,
                         Source = nameof(CheckOnlineAsync),
                         CancelationRequested = cts?.IsCancellationRequested ?? false,
-                        Exception = texp
+                        ErrorMessage = texp.Message,
+                        StackTrace = texp.StackTrace,
+                        Error = DtoMapper.FromException(texp),
                     });
                     // Throws exception on timeout, not actually an error but indicates if the server is reachable.
                     if (!IsOnline)
