@@ -112,7 +112,7 @@ namespace AndreasReitberger.API.REST
         #endregion
 
         #region Rest Api
-        public virtual Task<IRestApiRequestRespone?> SendRestApiRequestAsync(
+        public virtual Task<IRestApiRequestRespone?> SendRestApiRequestLegacyAsync(
             string? requestTargetUri,
             Method method,
             string? command,

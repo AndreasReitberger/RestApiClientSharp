@@ -117,7 +117,7 @@ namespace AndreasReitberger.API.REST.Interfaces
 
         #region Rest
         public Task<IRestApiRequestRespone?> SendRestApiRequestAsync(string? requestTargetUri, Method method, string? command,
-            Dictionary<string, IAuthenticationHeader> authHeaders, object? jsonObject = null, RestBodyTarget target = RestBodyTarget.Json, CancellationTokenSource? cts = default, Dictionary<string, string>? urlSegments = null
+            Dictionary<string, IAuthenticationHeader> authHeaders, object? jsonObject = null, RestBodyTarget target = RestBodyTarget.Json, CancellationTokenSource? cts = default, List<Tuple<string, string>>? urlSegments = null
             //string? contentType = null, string? accept = null
             );
 
