@@ -4,16 +4,14 @@ using AndreasReitberger.API.REST.Interfaces;
 using AndreasReitberger.API.REST.Structs;
 using AndreasReitberger.Shared.Core.Utilities;
 using System.Collections.Generic;
+using System.Linq;
 #if DEBUG
 using System.Diagnostics;
-using System.Linq;
-
 #endif
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace AndreasReitberger.API.REST
 {
