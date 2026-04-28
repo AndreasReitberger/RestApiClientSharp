@@ -4,6 +4,7 @@ using AndreasReitberger.API.REST.Interfaces;
 using AndreasReitberger.API.REST.Structs;
 using AndreasReitberger.Shared.Core.Utilities;
 using System.Collections.Generic;
+using System.Linq;
 #if DEBUG
 using System.Diagnostics;
 #endif
@@ -11,7 +12,6 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace AndreasReitberger.API.REST
 {
@@ -110,7 +110,7 @@ namespace AndreasReitberger.API.REST
         #endregion
 
         #region Rest Api
-        public virtual async Task<IRestApiRequestRespone?> SendRestApiRequestAsync(
+        public virtual Task<IRestApiRequestRespone?> SendRestApiRequestLegacyAsync(
             string? requestTargetUri,
             Method method,
             string? command,
@@ -119,6 +119,19 @@ namespace AndreasReitberger.API.REST
             RestBodyTarget target = RestBodyTarget.Json,
             CancellationTokenSource? cts = default,
             Dictionary<string, string>? urlSegments = null
+            )
+            => SendRestApiRequestAsync(requestTargetUri, method, command, authHeaders, body, target, cts, 
+                urlSegments is not null ? [.. urlSegments.Select(kvp => new Tuple<string, string>(kvp.Key, kvp.Value))] : null);
+
+        public virtual async Task<IRestApiRequestRespone?> SendRestApiRequestAsync(
+            string? requestTargetUri,
+            Method method,
+            string? command,
+            Dictionary<string, IAuthenticationHeader> authHeaders,
+            object? body = null,
+            RestBodyTarget target = RestBodyTarget.Json,
+            CancellationTokenSource? cts = default,
+            List<Tuple<string, string>>? urlSegments = null
             )
         {
             RestApiRequestRespone apiRsponeResult = new() { IsOnline = IsOnline };
@@ -183,9 +196,9 @@ namespace AndreasReitberger.API.REST
                 }
                 if (urlSegments is not null)
                 {
-                    foreach (KeyValuePair<string, string> pair in urlSegments)
+                    foreach (Tuple<string, string> pair in urlSegments)
                     {
-                        request.AddParameter(pair.Key, pair.Value, ParameterType.QueryString);
+                        request.AddParameter(pair.Item1, pair.Item2, ParameterType.QueryString);
                     }
                 }
                 if (authHeaders?.Count > 0)

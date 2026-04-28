@@ -2,7 +2,6 @@
 using AndreasReitberger.API.REST.Interfaces;
 using AndreasReitberger.API.REST.JSON.System;
 using System.Text.Json.Serialization.Metadata;
-using static Microsoft.IO.RecyclableMemoryStreamManager;
 
 namespace AndreasReitberger.API.REST
 {
