@@ -54,5 +54,5 @@ updates:
 #    - dependency-name: "MicrosoftMauiGraphicsVersion"         # maestro
       
   labels:
-      - "nuget"
+      - "nugets"
       - "dependencies"
