@@ -16,7 +16,7 @@
 		<PackageReference Include="RestSharp" Version="114.0.0" />
 		<PackageReference Include="SharedNetCoreLibrary" Version="1.2.7" />
 		<PackageReference Include="System.Text.Json" Version="10.0.8" />
-		<PackageReference Include="System.Threading.RateLimiting" Version="10.0.7" />
+		<PackageReference Include="System.Threading.RateLimiting" Version="10.0.8" />
 		<PackageReference Include="Websocket.Client" Version="5.5.0" />
 		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
 	</ItemGroup>
