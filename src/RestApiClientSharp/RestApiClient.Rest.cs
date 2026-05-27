@@ -44,61 +44,62 @@ namespace AndreasReitberger.API.REST
             }
         }
 
-        protected virtual IRestApiRequestRespone ValidateResponse(RestResponse? respone, Uri? targetUri)
+        protected virtual IRestApiRequestRespone ValidateResponse(RestResponse? response, Uri? targetUri)
         {
             RestApiRequestRespone apiRsponeResult = new() { IsOnline = IsOnline };
             try
             {
-                if (respone is null) return apiRsponeResult;
+                if (response is null) return apiRsponeResult;
                 if ((
-                    respone.StatusCode == HttpStatusCode.OK || respone.StatusCode == HttpStatusCode.NoContent ||
-                    respone.StatusCode == HttpStatusCode.Created || respone.StatusCode == HttpStatusCode.Accepted
-                    ) && respone.ResponseStatus == ResponseStatus.Completed
+                    response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.NoContent ||
+                    response.StatusCode == HttpStatusCode.Created || response.StatusCode == HttpStatusCode.Accepted ||
+                    response.StatusCode == HttpStatusCode.Found
+                    ) && response.ResponseStatus == ResponseStatus.Completed
                     )
                 {
                     apiRsponeResult.IsOnline = true;
                     AuthenticationFailed = false;
-                    apiRsponeResult.Result = respone.Content;
-                    apiRsponeResult.RawBytes = respone.RawBytes;
+                    apiRsponeResult.Result = response.Content;
+                    apiRsponeResult.RawBytes = response.RawBytes;
                     apiRsponeResult.Succeeded = true;
-                    apiRsponeResult.Cookies = respone.Cookies;
+                    apiRsponeResult.Cookies = response.Cookies;
                 }
-                else if (respone.StatusCode == HttpStatusCode.NonAuthoritativeInformation
-                    || respone.StatusCode == HttpStatusCode.Forbidden
-                    || respone.StatusCode == HttpStatusCode.Unauthorized
+                else if (response.StatusCode == HttpStatusCode.NonAuthoritativeInformation
+                    || response.StatusCode == HttpStatusCode.Forbidden
+                    || response.StatusCode == HttpStatusCode.Unauthorized
                     )
                 {
                     apiRsponeResult.IsOnline = true;
                     apiRsponeResult.HasAuthenticationError = true;
-                    apiRsponeResult.Cookies = respone.Cookies;
+                    apiRsponeResult.Cookies = response.Cookies;
                 }
-                else if (respone.StatusCode == HttpStatusCode.Conflict)
+                else if (response.StatusCode == HttpStatusCode.Conflict)
                 {
                     apiRsponeResult.IsOnline = true;
                     apiRsponeResult.HasAuthenticationError = false;
-                    apiRsponeResult.Cookies = respone.Cookies;
+                    apiRsponeResult.Cookies = response.Cookies;
                 }
                 else
                 {
                     OnRestApiError(new RestEventArgs()
                     {
-                        Status = respone.ResponseStatus.ToString(),
-                        ErrorMessage = respone.ErrorException?.Message,
-                        StackTrace = respone.ErrorException?.StackTrace,
-                        Message = respone.Content ?? respone.ErrorMessage,
+                        Status = response.ResponseStatus.ToString(),
+                        ErrorMessage = response.ErrorException?.Message,
+                        StackTrace = response.ErrorException?.StackTrace,
+                        Message = response.Content ?? response.ErrorMessage,
                         Uri = targetUri,
-                        Error = DtoMapper.FromException(respone.ErrorException),
+                        Error = DtoMapper.FromException(response.ErrorException),
                     });
                 }
                 // Set event args
                 apiRsponeResult.EventArgs = new RestEventArgs()
                 {
-                    Status = respone.ResponseStatus.ToString(),
-                    ErrorMessage = respone.ErrorException?.Message,
-                    StackTrace = respone.ErrorException?.StackTrace,
-                    Message = respone.Content,
+                    Status = response.ResponseStatus.ToString(),
+                    ErrorMessage = response.ErrorException?.Message,
+                    StackTrace = response.ErrorException?.StackTrace,
+                    Message = response.Content,
                     Uri = targetUri,
-                    Error = DtoMapper.FromException(respone.ErrorException),
+                    Error = DtoMapper.FromException(response.ErrorException),
                 };
             }
             catch (Exception exc)
