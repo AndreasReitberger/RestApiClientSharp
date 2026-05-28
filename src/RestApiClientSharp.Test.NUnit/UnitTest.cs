@@ -42,7 +42,7 @@ namespace RestApiClientSharp.Test.NUnit
         #endregion
 
         #region JSON
-        [Test]
+        [Test, Obsolete]
         public void TestNewtonsoftJsonSerialization()
         {
             try
@@ -58,6 +58,7 @@ namespace RestApiClientSharp.Test.NUnit
                 Assert.Fail(ex.Message);
             }
         }
+
         [Test]
         public void TestJsonSerialization()
         {
