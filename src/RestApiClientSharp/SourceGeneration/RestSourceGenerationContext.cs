@@ -1,4 +1,5 @@
 ﻿using AndreasReitberger.API.REST.Events;
+using AndreasReitberger.API.REST.TypeConverters;
 
 namespace AndreasReitberger.API.REST.SourceGeneration
 {
@@ -15,6 +16,15 @@ namespace AndreasReitberger.API.REST.SourceGeneration
     [JsonSerializable(typeof(TaskCanceledEventArgs))]
     [JsonSerializable(typeof(WebsocketEventArgs))]
     [JsonSerializable(typeof(WebsocketPingSentEventArgs))]
-    [JsonSourceGenerationOptions(WriteIndented = true)]
+    [JsonSourceGenerationOptions(WriteIndented = true,
+        Converters = new Type[] {
+            typeof(AuthenticationHeaderConverter),
+        }, ReferenceHandler =
+#if DEBUG
+        JsonKnownReferenceHandler.Preserve
+#else
+        JsonKnownReferenceHandler.IgnoreCycles
+#endif
+        )]
     public partial class RestSourceGenerationContext : JsonSerializerContext { }
 }

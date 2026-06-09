@@ -9,11 +9,11 @@ namespace AndreasReitberger.API.REST
     {
 
         [ObservableProperty]
-        [Newtonsoft.Json.JsonIgnore, JsonIgnore, XmlIgnore]
-        public partial JsonSerializerOptions JsonSerializerSettings { get; set; } = DefaultJsonSerializerSettings;
+        [JsonIgnore, XmlIgnore]
+        public partial JsonSerializerOptions JsonSerializerSettings { get; set; } = RestSourceGenerationContext.Default.Options;
 
         #region SerializerSettings
-
+        [Obsolete("This property is deprecated. Use the `RestSourceGenerationContext` instead.")]
         public static JsonSerializerOptions DefaultJsonSerializerSettings = new()
         {
             TypeInfoResolver = RestSourceGenerationContext.Default,
@@ -34,6 +34,7 @@ namespace AndreasReitberger.API.REST
         #region Methods
 
 #nullable enable
+        [Obsolete("This method is deprecated. Use the `JsonConvertHelper.ToObject<T>` method from the `SharedNetCoreLibrary` instead.")]
         public T? GetObjectFromJsonSystem<T>(string? json, JsonSerializerContext serializerContext)
         {
             try
@@ -53,6 +54,7 @@ namespace AndreasReitberger.API.REST
                 return default;
             }
         }
+        [Obsolete("This method is deprecated. Use the `JsonConvertHelper.ToObject<T>` method from the `SharedNetCoreLibrary` instead.")]
         public T? GetObjectFromJsonSystem<T>(string? json, JsonSerializerOptions? serializerSettings = null)
         {
             try

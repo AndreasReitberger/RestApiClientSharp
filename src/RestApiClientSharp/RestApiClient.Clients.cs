@@ -1,7 +1,5 @@
 ﻿using AndreasReitberger.API.REST.Interfaces;
 using AndreasReitberger.API.REST.Utilities;
-using Newtonsoft.Json;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Net;
 using System.Net.Http;
@@ -21,16 +19,16 @@ namespace AndreasReitberger.API.REST
         #region Clients
         
         [ObservableProperty]
-        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial RestClient? RestClient { get; set; }
 
         [ObservableProperty]
-        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial HttpClient? HttpClient { get; set; }
             
 #if !NETFRAMEWORK
         [ObservableProperty]
-        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial RateLimitedHandler? RateLimitedHandler { get; set; }
 
         public static RateLimiter DefaultLimiter = new TokenBucketRateLimiter(new()
@@ -44,7 +42,7 @@ namespace AndreasReitberger.API.REST
         });
 
         [ObservableProperty]
-        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial RateLimiter? Limiter { get; set; }
         partial void OnLimiterChanged(RateLimiter? value) => UpdateRestClientInstance();
 #endif
@@ -97,7 +95,11 @@ namespace AndreasReitberger.API.REST
 
             RestClientOptions options = new(target)
             {
+#if DEBUG
+                ThrowOnAnyError = true,
+#else
                 ThrowOnAnyError = false,
+#endif
                 Timeout = TimeSpan.FromSeconds(DefaultTimeout),
                 CookieContainer = new CookieContainer(),
             };
@@ -134,6 +136,6 @@ namespace AndreasReitberger.API.REST
             }
             UpdatingClients = false;
         }
-        #endregion
+#endregion
     }
 }

@@ -1,5 +1,4 @@
 ﻿using AndreasReitberger.API.REST.Interfaces;
-using Newtonsoft.Json;
 using System.Net;
 
 namespace AndreasReitberger.API.REST
@@ -37,7 +36,7 @@ namespace AndreasReitberger.API.REST
         partial void OnProxyUserChanged(string value) => UpdateRestClientInstance();
 
         [ObservableProperty]
-        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial string? ProxyPassword { get; set; }
         partial void OnProxyPasswordChanged(string? value) => UpdateRestClientInstance();
 

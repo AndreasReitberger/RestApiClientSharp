@@ -1,6 +1,8 @@
 using AndreasReitberger.API.REST;
 using AndreasReitberger.API.REST.Enums;
 using AndreasReitberger.API.REST.Interfaces;
+using AndreasReitberger.API.REST.SourceGeneration;
+using AndreasReitberger.Shared.Core.Utilities;
 using Newtonsoft.Json;
 using RestApiClientSharp.Test.NUnit.Model;
 using RestSharp;
@@ -42,32 +44,16 @@ namespace RestApiClientSharp.Test.NUnit
         #endregion
 
         #region JSON
-        [Test, Obsolete]
-        public void TestNewtonsoftJsonSerialization()
-        {
-            try
-            {
-                string? json = JsonConvert.SerializeObject(client, Formatting.Indented, settings: RestApiClient.DefaultNewtonsoftJsonSerializerSettings);
-                Assert.That(!string.IsNullOrEmpty(json));
-
-                RestApiClient? client2 = JsonConvert.DeserializeObject<RestApiClient>(json, settings: RestApiClient.DefaultNewtonsoftJsonSerializerSettings);
-                Assert.That(client2, Is.Not.Null);
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail(ex.Message);
-            }
-        }
 
         [Test]
         public void TestJsonSerialization()
         {
             try
             {
-                string? json = System.Text.Json.JsonSerializer.Serialize(client, options: RestApiClient.DefaultJsonSerializerSettings);
+                string? json = System.Text.Json.JsonSerializer.Serialize(client, typeof(RestApiClient), context: RestSourceGenerationContext.Default);
                 Assert.That(!string.IsNullOrEmpty(json));
 
-                RestApiClient? client2 = System.Text.Json.JsonSerializer.Deserialize<RestApiClient>(json, options: RestApiClient.DefaultJsonSerializerSettings);
+                RestApiClient? client2 = (RestApiClient?)System.Text.Json.JsonSerializer.Deserialize(json, typeof(RestApiClient), context: RestSourceGenerationContext.Default);
                 Assert.That(client2, Is.Not.Null);
             }
             catch (Exception ex)
@@ -101,7 +87,7 @@ namespace RestApiClientSharp.Test.NUnit
                     .ConfigureAwait(false);
                 json = result?.Result;
                 Assert.That(!string.IsNullOrEmpty(json));
-                TestJson? resultObject = client.GetObjectFromJsonSystem<TestJson>(json);
+                TestJson? resultObject = JsonConvertHelper.ToObject<TestJson>(json!, settings: RestSourceGenerationContext.Default);
                 Assert.That(resultObject, Is.Not.Null);
             }
             catch (Exception ex)
