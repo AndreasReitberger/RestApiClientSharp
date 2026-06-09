@@ -22,15 +22,15 @@ namespace AndreasReitberger.API.REST
 
         #region Properties
         [ObservableProperty]
-        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial WebsocketClient? WebSocket { get; set; }
 
         [ObservableProperty]
-        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial CancellationTokenSource? CtsPinging { get; set; }
 
         [ObservableProperty]
-        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial bool IsListening { get; set; } = false;
         partial void OnIsListeningChanged(bool value)
         {
@@ -43,7 +43,7 @@ namespace AndreasReitberger.API.REST
         }
 
         [ObservableProperty]
-        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial Func<Task>? OnRefresh { get; set; }
 
         [ObservableProperty]
@@ -57,7 +57,7 @@ namespace AndreasReitberger.API.REST
         }
 
         [ObservableProperty]
-        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial long LastPingTimestamp { get; set; }
 
         [ObservableProperty]
@@ -74,15 +74,15 @@ namespace AndreasReitberger.API.REST
         }
 
         [ObservableProperty]
-        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial long PingCounter { get; set; } = 0;
 
         [ObservableProperty]
-        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial long LastRefreshTimestamp { get; set; }
 
         [ObservableProperty]
-        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial int RefreshCounter { get; set; } = 0;
 
         [ObservableProperty]

@@ -1,5 +1,4 @@
 ﻿using AndreasReitberger.API.REST.Interfaces;
-using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Threading.RateLimiting;
 

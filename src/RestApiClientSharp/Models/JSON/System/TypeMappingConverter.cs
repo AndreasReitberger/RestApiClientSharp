@@ -13,7 +13,7 @@ namespace AndreasReitberger.API.REST.JSON.System
     /// <typeparam name="TType"></typeparam>
     /// <typeparam name="TImplementation"></typeparam>
 
-    public sealed class TypeMappingConverter<
+    public class TypeMappingConverter<
 #if NET5_0_OR_GREATER
         [DynamicallyAccessedMembers(
             DynamicallyAccessedMemberTypes.PublicParameterlessConstructor |

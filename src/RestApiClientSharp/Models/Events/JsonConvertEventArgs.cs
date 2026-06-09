@@ -9,7 +9,7 @@ namespace AndreasReitberger.API.REST.Events
         public string? OriginalString { get; set; }
         public string? TargetType { get; set; }
 
-        [JsonIgnore, Newtonsoft.Json.JsonIgnore]
+        [JsonIgnore]
         public Exception? Exception { get; set; }
         #endregion
 
