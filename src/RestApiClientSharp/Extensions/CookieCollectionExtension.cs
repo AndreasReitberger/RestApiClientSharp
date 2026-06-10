@@ -2,6 +2,7 @@
 
 namespace AndreasReitberger.API.REST.Extensions
 {
+    [Obsolete("Use from the core library once available")]
     public static class CookieCollectionExtension
     {
         extension(CookieCollection collection)

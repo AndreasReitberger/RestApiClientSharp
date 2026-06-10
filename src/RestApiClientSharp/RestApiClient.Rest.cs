@@ -12,6 +12,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using AndreasReitberger.API.REST.Extensions;
 
 namespace AndreasReitberger.API.REST
 {
@@ -111,6 +112,7 @@ namespace AndreasReitberger.API.REST
         #endregion
 
         #region Rest Api
+        [Obsolete("This method is deprecated. Please use SendRestApiRequestAsync instead.")]
         public virtual Task<IRestApiRequestRespone?> SendRestApiRequestLegacyAsync(
             string? requestTargetUri,
             Method method,
@@ -119,10 +121,11 @@ namespace AndreasReitberger.API.REST
             object? body = null,
             RestBodyTarget target = RestBodyTarget.Json,
             CancellationTokenSource? cts = default,
-            Dictionary<string, string>? urlSegments = null
+            Dictionary<string, string>? urlSegments = null,
+            JsonSerializerContext? serializerContext = null
             )
             => SendRestApiRequestAsync(requestTargetUri, method, command, authHeaders, body, target, cts, 
-                urlSegments is not null ? [.. urlSegments.Select(kvp => new Tuple<string, string>(kvp.Key, kvp.Value))] : null);
+                urlSegments is not null ? [.. urlSegments.Select(kvp => new Tuple<string, string>(kvp.Key, kvp.Value))] : null, serializerContext);
 
         public virtual async Task<IRestApiRequestRespone?> SendRestApiRequestAsync(
             string? requestTargetUri,
@@ -132,13 +135,16 @@ namespace AndreasReitberger.API.REST
             object? body = null,
             RestBodyTarget target = RestBodyTarget.Json,
             CancellationTokenSource? cts = default,
-            List<Tuple<string, string>>? urlSegments = null
+            List<Tuple<string, string>>? urlSegments = null,
+            JsonSerializerContext? serializerContext = null
             )
         {
             RestApiRequestRespone apiRsponeResult = new() { IsOnline = IsOnline };
             try
             {
                 cts ??= new(TimeSpan.FromSeconds(DefaultTimeout));
+                serializerContext ??= RestSourceGenerationContext.Default;
+
                 requestTargetUri ??= string.Empty;
                 command ??= string.Empty;
                 if (RestClient == null)
@@ -188,8 +194,12 @@ namespace AndreasReitberger.API.REST
                             }
                             else
                             {
+                                bodyContent = string.Empty;
                                 //bodyContent = JsonConvert.SerializeObject(body, DefaultNewtonsoftJsonSerializerSettings);
-                                bodyContent = JsonSerializer.Serialize(body!, body.GetType(), RestSourceGenerationContext.Default);
+                                if (body.GetType().IsAnonymousType())
+                                    bodyContent = JsonSerializer.Serialize(body!, body.GetType());                           
+                                else
+                                    bodyContent = JsonSerializer.Serialize(body!, body.GetType(), context: serializerContext);
                                 request.AddJsonBody(bodyContent, RestContentType.Json);
                             }
                             break;
@@ -317,11 +327,13 @@ namespace AndreasReitberger.API.REST
             string fileTargetName = "file",
             string fileContentType = "application/octet-stream",
             int timeout = 100
+            //,JsonSerializerContext? serializerContext = null
             )
         {
             RestApiRequestRespone apiRsponeResult = new();
             if (!IsOnline) return apiRsponeResult;
 
+            //serializerContext ??= RestSourceGenerationContext.Default;
             try
             {
                 // If there is no file specified
@@ -344,10 +356,10 @@ namespace AndreasReitberger.API.REST
                     {
                         switch (authHeader.Value.Target)
                         {
-                            case Enums.AuthenticationHeaderTarget.UrlSegment:
+                            case AuthenticationHeaderTarget.UrlSegment:
                                 request.AddParameter(authHeader.Key, authHeader.Value.Token, ParameterType.QueryString);
                                 break;
-                            case Enums.AuthenticationHeaderTarget.Header:
+                            case AuthenticationHeaderTarget.Header:
                             default:
                                 // Examples:
                                 // "X-Api-Key", $"{apiKey}"
