@@ -10,6 +10,11 @@ namespace AndreasReitberger.API.REST
 
         [ObservableProperty]
         [JsonIgnore, XmlIgnore]
+        public partial JsonSerializerContext JsonSerializerContext { get; set; } = RestSourceGenerationContext.Default;
+
+        [ObservableProperty]
+        [JsonIgnore, XmlIgnore]
+        [Obsolete("This property is deprecated. Use the `JsonSerializerContext` instead.")]
         public partial JsonSerializerOptions JsonSerializerSettings { get; set; } = RestSourceGenerationContext.Default.Options;
 
         #region SerializerSettings

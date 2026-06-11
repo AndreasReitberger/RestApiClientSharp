@@ -76,6 +76,10 @@ namespace AndreasReitberger.API.REST.Interfaces
         public Func<Task>? OnRefresh { get; set; }
         #endregion
 
+        #region JsonSerializer
+        public JsonSerializerContext JsonSerializerContext { get; set; }
+        #endregion
+
         #endregion
 
         #region EventHandlers

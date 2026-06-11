@@ -143,7 +143,7 @@ namespace AndreasReitberger.API.REST
             try
             {
                 cts ??= new(TimeSpan.FromSeconds(DefaultTimeout));
-                serializerContext ??= RestSourceGenerationContext.Default;
+                serializerContext ??= JsonSerializerContext ??= RestSourceGenerationContext.Default;
 
                 requestTargetUri ??= string.Empty;
                 command ??= string.Empty;
@@ -197,7 +197,9 @@ namespace AndreasReitberger.API.REST
                                 bodyContent = string.Empty;
                                 //bodyContent = JsonConvert.SerializeObject(body, DefaultNewtonsoftJsonSerializerSettings);
                                 if (body.GetType().IsAnonymousType())
-                                    bodyContent = JsonSerializer.Serialize(body!, body.GetType());                           
+#pragma warning disable IL2026 // Disable warning for anonymous types, as they cannot be preserved with source generation and are only used for internal purposes.
+                                    bodyContent = JsonSerializer.Serialize(body!, body.GetType());
+#pragma warning restore  IL2026 // Restore warnings
                                 else
                                     bodyContent = JsonSerializer.Serialize(body!, body.GetType(), context: serializerContext);
                                 request.AddJsonBody(bodyContent, RestContentType.Json);
@@ -327,13 +329,10 @@ namespace AndreasReitberger.API.REST
             string fileTargetName = "file",
             string fileContentType = "application/octet-stream",
             int timeout = 100
-            //,JsonSerializerContext? serializerContext = null
             )
         {
             RestApiRequestRespone apiRsponeResult = new();
             if (!IsOnline) return apiRsponeResult;
-
-            //serializerContext ??= RestSourceGenerationContext.Default;
             try
             {
                 // If there is no file specified
