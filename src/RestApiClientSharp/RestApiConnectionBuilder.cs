@@ -14,26 +14,57 @@ namespace AndreasReitberger.API.REST
 
             #region Methods
 
+            /// <summary>
+            /// Builds the <c>RestApiClient</c> instance with the specified configuration. After calling this method, the builder should not be used anymore, as it does not create a new instance of the client but returns the same one.
+            /// </summary>
+            /// <returns><c>RestApiClient</c></returns>
             public RestApiClient Build() => _client;
-            
+
+            /// <summary>
+            /// Sets the web address for the connection. This is the base address to which the method paths will be appended when making requests. 
+            /// For instance, if the web address is `https://api.example.com` and a method has the path `get-data`, the full request URI will be `https://api.example.com/get-data` 
+            /// (or `https://api.example.com/version/get-data` if an API version is set). 
+            /// If not set, the client will throw an exception when trying to make a request, as it won't have a valid URI to send the request to.
+            /// </summary>
+            /// <param name="webAddress">The web address for the connection</param>
+            /// <returns>The updated connection builder</returns>
             public RestApiConnectionBuilder WithWebAddress(string webAddress)
             {
                 _client.ApiTargetPath = webAddress;
                 return this;
             }
 
+            /// <summary>
+            /// Sets the API version for the connection. This is used to build the full request URI, which is usually in the format `webAddress/version/method`. If not set, the version will be omitted from the request URI.
+            /// </summary>
+            /// <param name="version">The API version</param>
+            /// <returns><c>RestApiConnectionBuilder</c></returns>
             public RestApiConnectionBuilder WithVersion(string version)
             {
                 _client.ApiVersion = version;
                 return this;
             }
 
+            /// <summary>
+            /// Sets the API key for the connection. The token name is the name of the header in which the token will be sent (for instance `apikey`).
+            /// The `AuthenticationHeader` contains the token and other information about how to send it.
+            /// </summary>
+            /// <param name="tokenName">The name of the API key</param>
+            /// <param name="authHeader">The authentication header for the API key</param>
+            /// <returns><c>RestApiConnectionBuilder</c></returns>
             public RestApiConnectionBuilder WithApiKey(string tokenName, IAuthenticationHeader authHeader)
             {
                 _client.AuthHeaders = new Dictionary<string, IAuthenticationHeader>() { { tokenName, authHeader } };
                 return this;
             }
 
+            /// <summary>
+            /// Sets the web address and the api key for the connection. This is a shortcut for setting both values at once.
+            /// </summary>
+            /// <param name="webAddress">The rest API web address</param>
+            /// <param name="tokenName">The name for the API key</param>
+            /// <param name="authHeader">The authentication header for the API key</param>
+            /// <returns><c>RestApiConnectionBuilder</c></returns>
             public RestApiConnectionBuilder WithWebAddressAndApiKey(string webAddress, string tokenName, IAuthenticationHeader authHeader)
             {
                 _client.ApiTargetPath = webAddress;
@@ -95,21 +126,6 @@ namespace AndreasReitberger.API.REST
                 _client.WebSocketTargetUri = webSocketAddress;
                 return this;
             }
-            /*
-            public RestApiConnectionBuilder WithWebSocket(string webSocketAddress, Dictionary<string, IAuthenticationHeader>? authentication = null, string pingCommand = "", int pingInterval = 0, bool enablePing = true)
-            {
-                if (authentication is not null)
-                    foreach (KeyValuePair<string, IAuthenticationHeader> item in authentication)
-                    {
-                        _client.AuthHeaders.Add(item.Key, item.Value);
-                    }
-                _client.EnablePing = enablePing;
-                _client.PingCommand = pingCommand;
-                _client.PingInterval = pingInterval;
-                _client.WebSocketTargetUri = webSocketAddress;
-                return this;
-            }
-            */
 
             /// <summary>
             /// Sets the WebSocket address for the connection
@@ -121,14 +137,25 @@ namespace AndreasReitberger.API.REST
             /// <returns><c>RestApiConnectionBuilder</c></returns>
             public RestApiConnectionBuilder WithWebSocket(string webSocketAddress, string pingCommand, string? tokenName = null, IAuthenticationHeader? authentication = null, int pingInterval = 0, bool enablePing = true)
                 => WithWebSocket(webSocketAddress, tokenName, authentication, pingCommand, pingInterval, enablePing);
-            /*
-            public RestApiConnectionBuilder WithWebSocket(string webSocketAddress, object pingCommand, Dictionary<string, IAuthenticationHeader>? authentication = null, int pingInterval = 0, bool enablePing = true)
-                => WithWebSocket(webSocketAddress, authentication, JsonConvert.SerializeObject(pingCommand), pingInterval, enablePing);
-            */
 
+            /// <summary>
+            /// Sets default headers for the connection. These headers will be sent with every request.
+            /// </summary>
+            /// <param name="headers">The headers to set</param>
+            /// <returns><c>RestApiConnectionBuilder</c></returns>
             public RestApiConnectionBuilder WithDefaultHeaders(params RestHeader[] headers)
             {
                 _client.DefaultHeaders = [.. headers];
+                return this;
+            }
+            /// <summary>
+            /// Sets the <c>JsonSerializerContext</c> for the rest api methods. If not set, the default options will be used.
+            /// </summary>
+            /// <param name="serializerContext">The json serializer context</param>
+            /// <returns><c>RestApiConnectionBuilder</c></returns>
+            public RestApiConnectionBuilder WithJsonSerializerContext(JsonSerializerContext serializerContext)
+            {
+                _client.JsonSerializerContext = serializerContext;
                 return this;
             }
             #endregion
