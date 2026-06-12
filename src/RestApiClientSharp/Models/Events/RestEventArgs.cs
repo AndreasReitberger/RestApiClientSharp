@@ -1,5 +1,5 @@
 ﻿using AndreasReitberger.API.REST.Interfaces;
-using AndreasReitberger.Shared.Core.Models.DTO;
+using AndreasReitberger.Shared.Core.DTO;
 
 namespace AndreasReitberger.API.REST.Events
 {
