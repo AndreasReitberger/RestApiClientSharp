@@ -335,13 +335,18 @@ namespace AndreasReitberger.API.REST
             if (!IsOnline) return apiRsponeResult;
             try
             {
-                // If there is no file specified
-                if (file is null && localFilePath is null)
-                    // and there are no additional parameters supplied, throw
-                    if (parameters?.Count == 0)
+                // If there is no file specified and there are no additional parameters supplied, throw
+                if (parameters?.Count == 0)
+                {
+                    if (file is null)
                         throw new ArgumentNullException(
-                            $"{nameof(file)} / {nameof(localFilePath)} / {nameof(parameters)}",
+                            nameof(file),
                             $"No file, localFilePath and paramaters have been provided! Set at least one of those three parameters!");
+                    else if (localFilePath is null)
+                        throw new ArgumentNullException(
+                            nameof(localFilePath),
+                            $"No file, localFilePath and paramaters have been provided! Set at least one of those three parameters!");
+                }
                 if (RestClient is null)
                 {
                     UpdateRestClientInstance();
