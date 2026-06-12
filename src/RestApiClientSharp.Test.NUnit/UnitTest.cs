@@ -216,7 +216,7 @@ namespace RestApiClientSharp.Test.NUnit
             }
             catch (Exception ex)
             {
-                Assert.That(ex.Message == "Request failed with status code NotFound");
+                Assert.That(ex.Message, Is.EqualTo("Request failed with status code NotFound"));
             }
         }
         #endregion
