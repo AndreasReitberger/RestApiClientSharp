@@ -36,7 +36,7 @@ namespace AndreasReitberger.API.REST
             {
                 if ((string.IsNullOrEmpty(result) || result == "{}") && emptyResultIsValid)
                     return true;
-                return JsonConvertHelper.ToObject<QueryActionResult>(result!, settings: RestSourceGenerationContext.Default)?.Ok ?? false;
+                return JsonConvertHelper.ToObject<QueryActionResult>(result!, context: RestSourceGenerationContext.Default)?.Ok ?? false;
             }
             catch (Exception exc)
             {

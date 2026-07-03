@@ -87,7 +87,7 @@ namespace RestApiClientSharp.Test.NUnit
                     .ConfigureAwait(false);
                 json = result?.Result;
                 Assert.That(!string.IsNullOrEmpty(json));
-                TestJson? resultObject = JsonConvertHelper.ToObject<TestJson>(json!, settings: RestSourceGenerationContext.Default);
+                TestJson? resultObject = JsonConvertHelper.ToObject<TestJson>(json!, context: RestSourceGenerationContext.Default);
                 Assert.That(resultObject, Is.Not.Null);
             }
             catch (Exception ex)
