@@ -1,19 +1,19 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace RestApiClientSharp.Test.NUnit.Model
 {
     public partial class TestJson
     {
-        [JsonProperty("userId")]
+        [JsonPropertyName("userId")]
         public long UserId { get; set; }
 
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public long Id { get; set; }
 
-        [JsonProperty("title")]
+        [JsonPropertyName("title")]
         public string? Title { get; set; }
 
-        [JsonProperty("completed")]
+        [JsonPropertyName("completed")]
         public bool Completed { get; set; }
     }
 }
