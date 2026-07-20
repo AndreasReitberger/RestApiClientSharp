@@ -3,7 +3,6 @@ using AndreasReitberger.API.REST.Enums;
 using AndreasReitberger.API.REST.Interfaces;
 using AndreasReitberger.API.REST.SourceGeneration;
 using AndreasReitberger.Shared.Core.Utilities;
-using Newtonsoft.Json;
 using RestApiClientSharp.Test.NUnit.Model;
 using RestSharp;
 using System.Diagnostics;
