@@ -96,11 +96,6 @@ namespace AndreasReitberger.API.REST
             RestClientOptions options = new(target)
             {
                 ThrowOnAnyError = false,
-#if DEBUG
-                //ThrowOnAnyError = true,
-#else
-                ThrowOnAnyError = false,
-#endif
                 Timeout = TimeSpan.FromSeconds(DefaultTimeout),
                 CookieContainer = new CookieContainer(),
             };
