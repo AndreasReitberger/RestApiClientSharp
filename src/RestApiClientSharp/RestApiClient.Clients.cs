@@ -95,33 +95,39 @@ namespace AndreasReitberger.API.REST
 
             RestClientOptions options = new(target)
             {
-#if DEBUG
-                ThrowOnAnyError = true,
-#else
                 ThrowOnAnyError = false,
-#endif
                 Timeout = TimeSpan.FromSeconds(DefaultTimeout),
                 CookieContainer = new CookieContainer(),
             };
             HttpClient?.Dispose();
             HttpClient = null;
+            HttpClientHandler httpHandler = new()
+            {
+                AllowAutoRedirect = true,
+            };
             if (EnableProxy && !string.IsNullOrEmpty(ProxyAddress))
             {
-                HttpClientHandler httpHandler = new()
-                {
-                    UseProxy = true,
-                    Proxy = GetCurrentProxy(),
-                    AllowAutoRedirect = true,
-                };
+                httpHandler.UseProxy = true;
+                httpHandler.Proxy = GetCurrentProxy();
                 HttpClient = new(handler: httpHandler, disposeHandler: true);
             }
             else
             {
-                HttpClient =
 #if !NETFRAMEWORK
-                    !UseRateLimiter ? new() : new(new RateLimitedHandler(Limiter));
-#else
-                    new();
+                if (UseRateLimiter)
+                {
+                    var rlh = new RateLimitedHandler(Limiter)
+                    {
+                        InnerHandler = httpHandler
+                    };
+                    HttpClient = new(new RateLimitedHandler(Limiter));
+                }
+                else
+                {
+#endif
+                    HttpClient =  new(handler: httpHandler, disposeHandler: true);
+#if !NETFRAMEWORK
+                }
 #endif
             }
             RestClient?.Dispose();
